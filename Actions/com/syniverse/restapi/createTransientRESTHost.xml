@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="createTransientRESTHost" result-type="REST:RESTHost" api-version="6.0.0" id="9e878239-6af1-4e47-b4c8-d7c1a867f37b" version="1.1.0" allowed-operations="vfe" category-name="com.syniverse.restapi">
+  <description><![CDATA[Creates TransietRESTHost
+
+Input:    	fqdn of Rest  Host
+Return:   	REST:RESTHost]]></description>
+  <param n="fqdn" t="string"><![CDATA[FQDN of REST Host]]></param>
+  <script encoded="false"><![CDATA[if (fqdn == null || fqdn == "" ) return null;
+var url = "https://" + fqdn;
+System.getModule("com.syniverse.restapi").importCert(url);
+var restHost = RESTHostManager.createHost("TransientRESTHost-"+fqdn);
+var transientRestHost = RESTHostManager.createTransientHostFrom(restHost);
+transientRestHost.url=url;
+
+return transientRestHost;]]></script>
+</dunes-script-module>

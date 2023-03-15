@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="vraRestLogin" result-type="string" api-version="6.0.0" id="69eb6a7c-afea-4bd3-b42f-2488b7601f6f" version="1.1.0" allowed-operations="vfe" category-name="com.syniverse.restapi">
+  <param n="fqdn" t="string"><![CDATA[]]></param>
+  <param n="domain" t="string"><![CDATA[]]></param>
+  <param n="user" t="string"><![CDATA[]]></param>
+  <param n="password" t="SecureString"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (fqdn == null || fqdn == "" ) return null;
+if (user == null || user == "" ) return null;
+if (password == null || password == "" ) return null;
+var restHost  = System.getModule("com.syniverse.restapi").createTransientRESTHost(fqdn);
+//Login Object
+var loginObj = {
+    "username": user,
+	"password": password,
+    "domain": domain
+};
+var loginJason = JSON.stringify(loginObj);
+//login URL
+var operationUrl = "/csp/gateway/am/api/login"
+var request = restHost.createRequest("POST", operationUrl, loginJason);
+request.setHeader("Content-Type", "application/json");
+var response = request.execute();
+System.debug(response.contentAsString);
+var res = JSON.parse(response.contentAsString);
+var token = res.cspAuthToken;
+System.debug("token: " + token);
+return token ]]></script>
+</dunes-script-module>

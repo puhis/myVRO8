@@ -1,0 +1,141 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item11" object-name="workflow:name=generic" id="00226162-2241-4fa1-89e3-f571537509cf" version="0.2.0" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[update VM Satellite Environment Parallel API]]></display-name>
+  <description><![CDATA[parallel run of "move VMs between Satellite Environments"]]></description>
+  <position y="10.0" x="80.0"/>
+  <input>
+    <param name="vmInput" type="string">
+      <description><![CDATA[VM Name (e.g. host1)]]></description>
+    </param>
+    <param name="BearerToken" type="string"/>
+    <param name="executeMethod" type="string"/>
+    <param name="operationUrl" type="string"/>
+    <param name="vcac_fqdn" type="string"/>
+    <param name="requestedFor" type="string"/>
+    <param name="deploymentPrefix" type="string"/>
+    <param name="projectName" type="string"/>
+    <param name="satNewEnv" type="string"/>
+  </input>
+  <attrib name="runActionResult" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="runContent" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="deploymentName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="10.0" x="500.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item7" catch-name="item10" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[createJSONConfig]]></display-name>
+    <script encoded="false"><![CDATA[var reason = "This task requested by " + requestedFor;
+var mutotext = {
+   "projectId": projectName,
+   "bulkRequestLimit": 1,
+   "deploymentName": deploymentName,
+   "ownedBy": requestedFor,
+   "inputs": {
+      "satHostToUpdate": vmInput,
+      "satNewEnvName": satNewEnv
+   },
+   "reason": reason
+};
+
+content = JSON.stringify(mutotext);
+System.log("content: " + content);]]></script>
+    <in-binding>
+      <bind name="vmInput" type="string" export-name="vmInput"/>
+      <bind name="deploymentName" type="string" export-name="deploymentName"/>
+      <bind name="requestedFor" type="string" export-name="requestedFor"/>
+      <bind name="projectName" type="string" export-name="projectName"/>
+      <bind name="satNewEnv" type="string" export-name="satNewEnv"/>
+    </in-binding>
+    <out-binding>
+      <bind name="content" type="string" export-name="runContent"/>
+    </out-binding>
+    <description><![CDATA[Create JSON config for REST API workflow run.]]></description>
+    <position y="130.0" x="240.0"/>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item0" catch-name="item10" throw-bind-name="errorCode" type="task" script-module="com.syniverse.restapi/vraRestExecuteAction">
+    <display-name><![CDATA[vraRestExecuteAction]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.syniverse.restapi").vraRestExecuteAction(method,operationUrl,content,auBearerToken,fqdn);
+]]></script>
+    <in-binding>
+      <bind name="method" type="string" export-name="executeMethod"/>
+      <bind name="operationUrl" type="string" export-name="operationUrl"/>
+      <bind name="content" type="string" export-name="runContent"/>
+      <bind name="auBearerToken" type="string" export-name="BearerToken"/>
+      <bind name="fqdn" type="string" export-name="vcac_fqdn"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="runActionResult"/>
+    </out-binding>
+    <description><![CDATA[Execute REST API method.]]></description>
+    <position y="130.0" x="460.0"/>
+  </workflow-item>
+  <workflow-item name="item9" throw-bind-name="errorCode" type="end" end-mode="1">
+    <in-binding/>
+    <position y="10.0" x="280.0"/>
+  </workflow-item>
+  <workflow-item name="item10" out-name="item9" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Create Exeption]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Error exception: " + errorCode);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </out-binding>
+    <position y="70.0" x="240.0"/>
+  </workflow-item>
+  <workflow-item name="item11" out-name="item4" catch-name="item10" throw-bind-name="errorCode" type="task" script-module="com.meshnet.ossautomation/createDeploymentNameCanonical">
+    <display-name><![CDATA[createDeploymentNameCanonical]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.meshnet.ossautomation").createDeploymentNameCanonical(catalogItemName);
+]]></script>
+    <in-binding>
+      <bind name="catalogItemName" type="string" export-name="deploymentPrefix"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="deploymentName"/>
+    </out-binding>
+    <description><![CDATA[Add a note to the workflow schema.]]></description>
+    <position y="130.0" x="40.0"/>
+  </workflow-item>
+  <presentation>
+    <p-param name="vmInput">
+      <desc><![CDATA[VM Name (e.g. host1)]]></desc>
+    </p-param>
+    <p-param name="BearerToken">
+      <desc><![CDATA[BearerToken]]></desc>
+    </p-param>
+    <p-param name="executeMethod">
+      <desc><![CDATA[executeMethod]]></desc>
+    </p-param>
+    <p-param name="operationUrl">
+      <desc><![CDATA[operationUrl]]></desc>
+    </p-param>
+    <p-param name="vcac_fqdn">
+      <desc><![CDATA[vcac_fqdn]]></desc>
+    </p-param>
+    <p-param name="requestedFor">
+      <desc><![CDATA[requestedFor]]></desc>
+    </p-param>
+    <p-param name="deploymentPrefix">
+      <desc><![CDATA[deploymentPrefix]]></desc>
+    </p-param>
+    <p-param name="projectName">
+      <desc><![CDATA[projectName]]></desc>
+    </p-param>
+    <p-param name="satNewEnv">
+      <desc><![CDATA[satNewEnv]]></desc>
+    </p-param>
+  </presentation>
+</workflow>

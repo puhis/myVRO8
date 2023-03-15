@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getNetMaskSizeByVlanID" result-type="string" api-version="6.0.0" id="e6abcad2-d0d0-4cf7-a992-1e68b7154da1" version="0.0.0" category-name="com.meshnet.netbox">
+  <param n="netname" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (netname == null || netname == "") return [];
+
+// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("NetBox");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "Netbox i109a config") {
+        configElement = configuration;
+        break;
+    }
+}
+if (!configElement) throw "no ConfigElement found";
+var netboxRestHost = configElement.getAttributeWithKey("nb_url").value;
+var netboxToken = configElement.getAttributeWithKey("nb_auth_token").value;
+var netboxPrefixPath = configElement.getAttributeWithKey("nb_api_prefixes").value;
+System.log(netboxRestHost);
+System.log(netboxToken);
+System.log(netboxPrefixPath);
+
+var restHost = RESTHostManager.createHost("TransientRESTHost-" + netboxRestHost);
+var transientRestHost = RESTHostManager.createTransientHostFrom(restHost);
+transientRestHost.url = netboxRestHost;
+nbresthost = transientRestHost;
+
+var vlanid = netname.split('vlan')[1];
+var freeiplist = [];
+if (vlanid == null) {
+    System.log("Vlan-ID is not set");
+}
+else {
+    // get prefix ID from netbox via vlan_id
+    var request = nbresthost.createRequest("GET", netboxPrefixPath + "?limit=0&vlan_vid=" + vlanid);
+    request.setHeader("Content-Type", "application/json");
+    request.setHeader("Accept", "application/json");
+    request.setHeader("Authorization", "Token " + netboxToken);
+    vlandetails = request.execute();
+    vlandetailsJSON = JSON.parse(vlandetails.contentAsString)
+    var prefix_id = 0;
+    prefix_id = vlandetailsJSON.results[0].id;
+
+    var request = nbresthost.createRequest("GET", netboxPrefixPath + prefix_id + "/available-ips/");
+    request.setHeader("Content-Type", "application/json");
+    request.setHeader("Accept", "application/json");
+    request.setHeader("Authorization", "Token " + netboxToken);
+    ipdetails = request.execute();
+    var ipdetailsJSON = JSON.parse(ipdetails.contentAsString);
+    System.log(ipdetailsJSON[0]);
+    var q = ipdetailsJSON[0];
+    System.log(q.address);
+    var netmaskbin = ipdetailsJSON[0].address.split('/')[1];
+
+    switch (netmaskbin) {
+        case '31': netmask = '255.255.255.254'; break;
+        case '30': netmask = '255.255.255.252'; break;
+        case '29': netmask = '255.255.255.248'; break;
+        case '28': netmask = '255.255.255.240'; break;
+        case '27': netmask = '255.255.255.224'; break;
+        case '26': netmask = '255.255.255.192'; break;
+        case '25': netmask = '255.255.255.128'; break;
+        case '24': netmask = '255.255.255.0'; break;
+        case '23': netmask = '255.255.254.0'; break;
+        case '22': netmask = '255.255.252.0'; break;
+        case '21': netmask = '255.255.248.0'; break;
+        case '20': netmask = '255.255.240.0'; break;
+        case '19': netmask = '255.255.224.0'; break;
+        case '18': netmask = '255.255.192.0'; break;
+        case '17': netmask = '255.255.128.0'; break;
+        case '16': netmask = '255.255.0.0'; break;
+        default: return "NetMask not found or BAD"; throw "Error";
+    }
+    /*
+    for each (var ip in ipdetailsJSON){
+        System.log (ip.address);
+        System.log ("--------------");
+        ipaddress = ip.address.split('/')[0];
+        freeiplist.push(ipaddress);
+    }
+    */
+    System.log(netmask);
+}
+return netmask;
+
+]]></script>
+</dunes-script-module>

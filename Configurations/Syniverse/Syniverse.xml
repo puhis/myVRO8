@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="6d4e4714-22ed-47b8-8292-9a1fecc623f6" version="0.2.0">
+  <display-name><![CDATA[Syniverse]]></display-name>
+  <atts>
+    <att name="ipamConnection" type="InfobloxIPAM:IpamConnection" read-only="false"/>
+    <att name="rootUsername" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+      <description><![CDATA[root account for rhel servers]]></description>
+    </att>
+    <att name="rootPassword" type="SecureString" read-only="false">
+      <description><![CDATA[root account password for rhel servers]]></description>
+    </att>
+    <att name="windowsGuestUsername" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+      <description><![CDATA[local administrator account for windows servers]]></description>
+    </att>
+    <att name="windowsGuestPassword" type="SecureString" read-only="false">
+      <description><![CDATA[local administrator account password for windows servers]]></description>
+    </att>
+    <att name="smtpHost" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+      <description><![CDATA[smtp server for dallas prod]]></description>
+    </att>
+    <att name="smtpPort" type="number" read-only="false">
+      <description><![CDATA[smtp port]]></description>
+    </att>
+    <att name="smtpFromAddress" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+      <description><![CDATA[email address used for sending messages]]></description>
+    </att>
+    <att name="smtpFromName" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+      <description><![CDATA[sender's name used for sending messages]]></description>
+    </att>
+    <att name="snmpCommunityOnPrem" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+      <description><![CDATA[SNMP Community String for On-Premises Endpoints]]></description>
+    </att>
+    <att name="snmpCommunityOffPrem" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+      <description><![CDATA[SNMP Community String for Off-Premises Endpoints]]></description>
+    </att>
+    <att name="destinationAddresses" type="Array/string" read-only="false">
+      <description><![CDATA[List of destination addresses that will receive notification emails]]></description>
+    </att>
+    <att name="ADHost" type="AD:AdHost" read-only="false"/>
+    <att name="ldapDatabaseParameter" type="SQL:Database" read-only="false"/>
+    <att name="ADOrganizationalUnit" type="AD:OrganizationalUnit" read-only="false"/>
+    <att name="vcac_username" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+    </att>
+    <att name="vcac_password" type="SecureString" read-only="false"/>
+    <att name="vcac_url" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+    </att>
+    <att name="vcac_domain" type="string" read-only="false">
+      <value encoded="n"><![CDATA[]]></value>
+    </att>
+    <att name="ssrootpasswd" type="SecureString" read-only="false"/>
+  </atts>
+</config-element>

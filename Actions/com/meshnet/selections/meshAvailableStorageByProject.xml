@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="meshAvailableStorageByProject" result-type="Array/string" api-version="6.0.0" id="a3c7d702-b6a2-4215-8be6-2f0f1d0f8de3" version="0.0.0" category-name="com.meshnet.selections">
+  <param n="projectId" t="string"><![CDATA[]]></param>
+  <param n="env" t="string"/>
+  <script encoded="false"><![CDATA[var storages = [];
+var tmpstorages = [];
+if (projectId == null || projectId == "") return [];
+if (env == null || env == "") return [];
+
+// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("Meshnet");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "i109 vra host") {
+        configElement = configuration;
+        break;
+    }
+}
+if (!configElement) throw "no ConfigElement found";
+var vraHost = configElement.getAttributeWithKey("vraDefault").value;
+if (vraHost == null) return [];
+var project = System.getModule("com.vmware.vra.extensibility.plugin.rest.project").getProject(vraHost, projectId);
+
+var allowedstorageall = "";
+for (var key in project.properties) {
+    if (key = "allowedstorage") { allowedstorageall = project.properties[key] }
+}
+tmpstorages = allowedstorageall.split(/,/);
+
+for (var stor in tmpstorages) {
+    System.log(tmpstorages[stor]);
+    System.log(stor);
+    System.log(tmpstorages[stor].indexOf("nfs"));
+    if (env == 'env:meshnet-intel') storages.push(tmpstorages[stor]);
+    if (((env == 'env:meshnet-hp') || (env == 'env:meshnet-backup')) && (tmpstorages[stor].indexOf("nfs") >= 0)) storages.push(tmpstorages[stor]);
+}
+/*
+storage:intel_800gb-ssd
+storage:intel_450gb-ssd
+storage:intel_5tb-ssd
+storage:meshnet_nas201-nfs
+storage:meshnet_nas203-nfs
+*/
+
+
+
+return storages;
+]]></script>
+</dunes-script-module>

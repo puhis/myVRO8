@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="3e4fd6af-0d12-49d6-a8e9-4664a693c52e" version="0.2.1" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Bulk update VM Satellite Env]]></display-name>
+  <description><![CDATA[Bulk move VMs between Satellite Environments]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vmNames" type="string">
+      <description><![CDATA[VM Names (e.g. host1,host2,host3,host4,etc)]]></description>
+    </param>
+    <param name="sat_requestedBy" type="string">
+      <description><![CDATA[Requestor ID]]></description>
+    </param>
+    <param name="sat_requestedFor" type="string">
+      <description><![CDATA[Requestor ID]]></description>
+    </param>
+    <param name="project" type="string"/>
+    <param name="satNewEnv" type="string"/>
+    <param name="allVMs" type="Array/string">
+      <description><![CDATA[Array of VM Name (e.g. host1)]]></description>
+    </param>
+  </input>
+  <attrib name="vcac_fqdn" type="string" read-only="false" conf-id="6d4e4714-22ed-47b8-8292-9a1fecc623f6" conf-key="vcac_url">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vcac_domain" type="string" read-only="false" conf-id="6d4e4714-22ed-47b8-8292-9a1fecc623f6" conf-key="vcac_domain">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vcac_user" type="string" read-only="false" conf-id="6d4e4714-22ed-47b8-8292-9a1fecc623f6" conf-key="vcac_username">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vcac_passwd" type="SecureString" read-only="false" conf-id="6d4e4714-22ed-47b8-8292-9a1fecc623f6" conf-key="vcac_password"/>
+  <attrib name="wfBearerToken" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="exMethod" type="string" read-only="false">
+    <value encoded="n"><![CDATA[POST]]></value>
+  </attrib>
+  <attrib name="operationUrl" type="string" read-only="false">
+    <value encoded="n"><![CDATA[/catalog/api/items/e0767574-141b-3f97-b4e8-1317363cb2f0/request]]></value>
+  </attrib>
+  <attrib name="actionResult" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="deploymentPrefix" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="gen" type="REST:RESTOperation" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='57cb01d6-32e1-4203-b0c6-b155930e8190:2812423b-6ae2-4468-9070-7ba64210f401'&dunesName='REST:RESTOperation']]></value>
+  </attrib>
+  <attrib name="ght" type="REST:RESTOperation" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='57cb01d6-32e1-4203-b0c6-b155930e8190:906fe2bb-6bf8-4eb3-8679-99fd47de208e'&dunesName='REST:RESTOperation']]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="50.0" x="560.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task">
+    <display-name><![CDATA[Create Array of VMs]]></display-name>
+    <script encoded="false"><![CDATA[//System.log("Starting the search process");
+//allVMs = new Array();
+//var completedCSVData = vmNames;
+//allVMs = completedCSVData.split(/,/);
+System.log("VMs: " + allVMs);
+
+System.log("Requestor ID: " + buvms_requestedBy);
+dpfx = "URSE " + buvms_requestedFor;
+]]></script>
+    <in-binding>
+      <bind name="vmNames" type="string" export-name="vmNames"/>
+      <bind name="buvms_requestedBy" type="string" export-name="sat_requestedBy"/>
+      <bind name="buvms_requestedFor" type="string" export-name="sat_requestedFor"/>
+      <bind name="allVMs" type="Array/string" export-name="allVMs"/>
+    </in-binding>
+    <out-binding>
+      <bind name="dpfx" type="string" export-name="deploymentPrefix"/>
+    </out-binding>
+    <position y="160.0" x="60.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item4" catch-name="item5" throw-bind-name="errorCode" type="foreach">
+    <display-name><![CDATA[Copy of Upgrade VM Hardware Tools And Network Parallel API]]></display-name>
+    <in-binding>
+      <bind name="vmInput" type="Array/string" export-name="*allVMs">
+        <description><![CDATA[VM Name (e.g. host1)]]></description>
+      </bind>
+      <bind name="BearerToken" type="string" export-name="wfBearerToken"/>
+      <bind name="executeMethod" type="string" export-name="exMethod"/>
+      <bind name="operationUrl" type="string" export-name="operationUrl"/>
+      <bind name="vcac_fqdn" type="string" export-name="vcac_fqdn"/>
+      <bind name="requestedFor" type="string" export-name="sat_requestedFor"/>
+      <bind name="deploymentPrefix" type="string" export-name="deploymentPrefix"/>
+      <bind name="projectName" type="string" export-name="project"/>
+      <bind name="satNewEnv" type="string" export-name="satNewEnv"/>
+    </in-binding>
+    <out-binding/>
+    <reference type="Workflow" id="00226162-2241-4fa1-89e3-f571537509cf"/>
+    <description><![CDATA[Upgrade VMs hardware to the newest version, VMware Tools, Network Cards to VMXNET3, and/or SCSI Controllers to PVSCSI.]]></description>
+    <position y="160.0" x="360.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" catch-name="item5" throw-bind-name="errorCode" type="task" script-module="com.syniverse.restapi/vraRestLogin">
+    <display-name><![CDATA[vraRestLogin]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.syniverse.restapi").vraRestLogin(fqdn,domain,user,password);
+]]></script>
+    <in-binding>
+      <bind name="fqdn" type="string" export-name="vcac_fqdn"/>
+      <bind name="domain" type="string" export-name="vcac_domain"/>
+      <bind name="user" type="string" export-name="vcac_user"/>
+      <bind name="password" type="SecureString" export-name="vcac_passwd"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="wfBearerToken"/>
+    </out-binding>
+    <description><![CDATA[Login to instance. Get auth Token.]]></description>
+    <position y="160.0" x="200.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item0" catch-name="item5" throw-bind-name="errorCode" type="task" script-module="com.syniverse.restapi/vraRestLogout">
+    <display-name><![CDATA[vraRestLogout]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.syniverse.restapi").vraRestLogout(auBearerToken,fqdn);
+]]></script>
+    <in-binding>
+      <bind name="auBearerToken" type="string" export-name="wfBearerToken"/>
+      <bind name="fqdn" type="string" export-name="vcac_fqdn"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="string" export-name="actionResult"/>
+    </out-binding>
+    <description><![CDATA[Logout from instance. Destroy auth Token.]]></description>
+    <position y="160.0" x="520.0"/>
+  </workflow-item>
+  <workflow-item name="item5" out-name="item6" catch-name="item6" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Create Exeption]]></display-name>
+    <script encoded="false"><![CDATA[System.log("Error exception: " + errorCode);]]></script>
+    <in-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </in-binding>
+    <out-binding>
+      <bind name="errorCode" type="string" export-name="errorCode"/>
+    </out-binding>
+    <position y="100.0" x="360.0"/>
+  </workflow-item>
+  <workflow-item name="item6" throw-bind-name="errorCode" type="end" end-mode="1">
+    <in-binding/>
+    <position y="50.0" x="320.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

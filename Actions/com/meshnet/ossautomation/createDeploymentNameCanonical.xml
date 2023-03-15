@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="createDeploymentNameCanonical" result-type="string" api-version="6.0.0" id="61476654-7f6d-4445-98cb-4811c9d021b1" version="0.1.0" allowed-operations="vfe" category-name="com.meshnet.ossautomation">
+  <param n="catalogItemName" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[//Params:
+// - No Input
+//Return:String
+//This action generate GUID in a format xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+
+if (catalogItemName == '' || catalogItemName == null) {
+    catalogItemName = "Deployment";
+};
+
+return catalogItemName + ' - xxxxxxxx-xxxx-9xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+});]]></script>
+</dunes-script-module>

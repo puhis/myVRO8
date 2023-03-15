@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<config-element id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" version="0.0.0">
+  <display-name><![CDATA[Netbox i109a config]]></display-name>
+  <atts>
+    <att name="nb_url" type="string" read-only="false">
+      <value encoded="n"><![CDATA[http://netbox.vm.as12773.net]]></value>
+    </att>
+    <att name="nb_fqdn" type="string" read-only="false">
+      <value encoded="n"><![CDATA[netbox.vm.as12773.net]]></value>
+    </att>
+    <att name="nb_auth_token" type="string" read-only="false">
+      <value encoded="n"><![CDATA[82cfc4aae084a7b5e54bc89e2a6c0d750a0beea9]]></value>
+    </att>
+    <att name="nb_api_prefixes" type="string" read-only="false">
+      <value encoded="n"><![CDATA[/api/ipam/prefixes/]]></value>
+    </att>
+    <att name="nb_api_vlans" type="string" read-only="false">
+      <value encoded="n"><![CDATA[/api/ipam/vlans/]]></value>
+    </att>
+    <att name="nb_api_ip" type="string" read-only="false">
+      <value encoded="n"><![CDATA[/api/ipam/ip-addresses/]]></value>
+    </att>
+    <att name="nb_api_vm" type="string" read-only="false">
+      <value encoded="n"><![CDATA[/api/virtualization/virtual-machines/]]></value>
+    </att>
+    <att name="nb_api_interface" type="string" read-only="false">
+      <value encoded="n"><![CDATA[/api/virtualization/interfaces/]]></value>
+    </att>
+  </atts>
+</config-element>

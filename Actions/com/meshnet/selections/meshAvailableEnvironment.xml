@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="meshAvailableEnvironment" result-type="Array/string" api-version="6.0.0" id="cb20e689-4eb9-4d3a-940f-d7c297a52bb4" version="0.0.0" category-name="com.meshnet.selections">
+  <param n="project" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[/*
+var result = new Array();
+
+if (!project || !project.customPropertiesExtension) {
+    return result;
+}
+
+var custProps = JSON.parse(project.customPropertiesExtension);
+Object.keys(custProps).forEach(function(key) {
+    var propObj = new Properties();
+    propObj.put("key", key);
+    propObj.put("encrypted", false);
+    var value = custProps[key]
+    if (value) {
+        propObj.put("value", value);
+        if (value.indexOf("((secret") == 0) {
+            propObj.put("encrypted", true);
+        }
+
+    }
+    result.push(propObj);
+});
+return result;
+*/
+
+var availenv = [];
+
+availenv.push('env:meshnet-intel');
+availenv.push('env:meshnet-hp');
+availenv.push('env:meshnet-backup');
+
+return availenv;
+]]></script>
+</dunes-script-module>

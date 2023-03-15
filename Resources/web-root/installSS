@@ -1,0 +1,2 @@
+#[#scriptContent#=#string#subscription-manager attach --pool=8a9980947fa34521017faf3b97fc0785; sleep 5; yum install salt-minion -y; echo master: da1d-gen-vss-mst001.dalab.syniverse.com >> /etc/salt/minion; systemctl start salt-minion
+#+#scriptTimeOut#=#number#300.0#+#scriptWorkingDirectory#=#string#/tmp#+#scriptRefreshTime#=#Any#Any#__NULL__#+#deleteResourceAfterRun#=#boolean#true#+#scriptType#=#string#bash#+#resourceSearchReplace#=#boolean#false#+#scriptInteractiveSession#=#boolean#false#+#resourceToCopy#=#Any#Any#__NULL__#+#copyResource#=#boolean#false#]#

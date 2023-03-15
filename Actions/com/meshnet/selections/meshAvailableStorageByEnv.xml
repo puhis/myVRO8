@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="meshAvailableStorageByEnv" result-type="Array/string" api-version="6.0.0" id="20dc60ae-ba75-41b2-bc5a-999cdade2f4b" version="0.0.0" category-name="com.meshnet.selections">
+  <param n="env" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (env == null || env == "" ) return [];
+var storages = [];
+
+if (env == 'env:meshnet-intel')
+    {
+        storages.push('storage:intel_800gb-ssd');
+        storages.push('storage:intel_450gb-ssd');
+        storages.push('storage:intel_5tb-ssd');
+        storages.push('storage:meshnet_nas201-nfs');
+        storages.push('storage:meshnet_nas203-nfs');
+    }
+if (env == 'env:meshnet-hp')
+    {
+        storages.push('storage:meshnet_nas201-nfs');
+        storages.push('storage:meshnet_nas203-nfs');
+    }
+if (env == 'env:meshnet-backup')
+    {
+        storages.push('storage:meshnet_nas201-nfs');
+        storages.push('storage:meshnet_nas203-nfs');
+    }
+return storages;
+
+/*
+storage:intel_800gb-ssd
+storage:intel_450gb-ssd
+storage:intel_5tb-ssd
+storage:meshnet_nas201-nfs
+storage:meshnet_nas203-nfs
+*/]]></script>
+</dunes-script-module>

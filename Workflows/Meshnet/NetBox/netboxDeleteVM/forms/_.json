@@ -1,0 +1,1 @@
+{"schema":{"vmName":{"id":"vmName","type":{"dataType":"string"},"label":"vmName","constraints":{"required":false}}},"layout":{"pages":[{"id":"page_10kskd8q","title":"General","sections":[{"id":"section_uzqpkyev","fields":[{"id":"vmName","display":"textField","signpostPosition":"right-middle","state":{"visible":true,"read-only":false}}]}]}]},"itemId":""}

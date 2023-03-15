@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getSatDropdown" result-type="Array/string" api-version="6.0.0" id="251fa8d9-6367-4bca-aa74-14c849cc0354" version="0.0.1" allowed-operations="vfe" category-name="com.Syniverse.Satellite">
+  <param n="restOperation" t="REST:RESTOperation"><![CDATA[]]></param>
+  <param n="param" t="string"><![CDATA[]]></param>
+  <param n="search" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[var acceptHeadersValue = "";
+var content = "";
+var inParamtersValues = [param];
+Server.log(restOperation.getHeaderParameters());
+
+var request = restOperation.createRequest(inParamtersValues, "");
+
+System.log("Request: " + request);
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+//System.log("Response: " + response);
+statusCode = response.statusCode;
+statusCodeAttribute = statusCode;
+System.log("Status code: " + statusCode);
+contentLength = response.contentLength;
+//headers = response.getAllHeaders();
+contentAsString = response.contentAsString;
+System.log("Content as string: " + contentAsString);
+
+var resultingArray = new Array();
+
+var softwareJson = JSON.parse(contentAsString);
+for (i = 0; i < softwareJson.total; i++) {
+    var lookline = softwareJson.results[i].name;
+    if ((search == "" ) || (search == null)) {
+        System.log("Found: " + lookline);
+        resultingArray.push(lookline);
+    } else {
+        if (lookline.indexOf(search) != -1) {
+            System.log("Found: " + lookline);
+            resultingArray.push(lookline);
+        }
+    }
+}
+System.log("This is the Name: " + softwareJson.total);
+var counter = contentAsString["selectable"];
+System.log ("Contents counter: - " + counter);
+
+return resultingArray;]]></script>
+</dunes-script-module>

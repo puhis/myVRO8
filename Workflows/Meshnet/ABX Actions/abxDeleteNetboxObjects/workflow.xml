@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="515166e2-5c63-4ac2-b197-a1bd4b82c2d7" editor-version="2.0" version="0.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>abxDeleteNetboxObjects</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output/>
+    <attrib name="ipAddresses" type="Array/string">
+        <value encoded="n"/>
+    </attrib>
+    <attrib name="fqdn" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="vraHost" type="VRA:Host" conf-id="bc44d7ea-8d80-440c-a6b6-cfb1a4b9507a" conf-key="vraDefault"/>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="210.0" x="380.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">//System.log("vRA event ID: " + System.getContext().getParameter("__metadata_eventTopicId"));&#13;
+//&#13;
+//System.log("Parameters:");&#13;
+//var parameterNames = System.getContext().parameterNames();&#13;
+//for each(var parameter in parameterNames) {&#13;
+//    System.log("   " + parameter + " : " + System.getContext().getParameter(parameter));&#13;
+//}&#13;
+&#13;
+&#13;
+System.log("inputProperties:");&#13;
+System.log(JSON.stringify(inputProperties, null, 2));&#13;
+&#13;
+var i = inputProperties.addresses;&#13;
+var iparray = i[0];&#13;
+fqdn = inputProperties.customProperties.hostname;&#13;
+ipAddresses = iparray;&#13;
+&#13;
+/*&#13;
+ipAddresses = [];&#13;
+&#13;
+// Deployment&#13;
+var deploymentId = inputProperties.get("deploymentId");&#13;
+//var deploymentId = "fb62f752-6277-4e7b-9adf-b231ed97615e"&#13;
+if (deploymentId != null) {&#13;
+    var deploymentObject = getObjectFromUrl("/deployment/api/deployments/" + deploymentId);&#13;
+    if (deploymentObject != null) {&#13;
+        fqdn = deploymentObject.inputs.hostname + "." + deploymentObject.inputs.domain;&#13;
+        var ipa = deploymentObject.inputs.ip_address1;&#13;
+        var ipm = deploymentObject.inputs.select_network1;&#13;
+        var ipfull = ipa + "/" + System.getModule("com.meshnet.netbox").getCidrByVlanID(ipm);&#13;
+        System.log("ip first : " + ipfull);&#13;
+        ipAddresses.push(ipfull);&#13;
+        if (deploymentObject.inputs.needNIC2) {&#13;
+            var ipa = deploymentObject.inputs.ip_address2;&#13;
+            var ipm = deploymentObject.inputs.select_network2;&#13;
+            var ipfull = ipa + "/" + System.getModule("com.meshnet.netbox").getCidrByVlanID(ipm);&#13;
+            System.log("ip second : " + ipfull);&#13;
+            ipAddresses.push(ipfull);&#13;
+        }&#13;
+        if (deploymentObject.inputs.needNIC3) {&#13;
+            var ipa = deploymentObject.inputs.ip_address3;&#13;
+            var ipm = deploymentObject.inputs.select_network3;&#13;
+            var ipfull = ipa + "/" + System.getModule("com.meshnet.netbox").getCidrByVlanID(ipm);&#13;
+            System.log("ip third : " + ipfull);&#13;
+            ipAddresses.push(ipfull);&#13;
+        }&#13;
+        //System.debug("Deployment\n" + getJson(deploymentObject));&#13;
+        //System.log("Deployment ID : " + deploymentObject.id);&#13;
+        //System.log("Deployment name : " + deploymentObject.name);&#13;
+        //System.log("Deployment description : " + deploymentObject.description);&#13;
+        //System.log("Deployment status : " + deploymentObject.status);&#13;
+        //System.log("Deployment inputs\n" + getJson(deploymentObject.inputs));&#13;
+    }&#13;
+}&#13;
+&#13;
+function getObjectFromUrl(url) {&#13;
+    return System.getModule("com.vmware.vra.extensibility.plugin.rest").getObjectFromUrl(vraHost, url, null);&#13;
+}&#13;
+&#13;
+function getJson(object) {&#13;
+    return JSON.stringify(object, null, 2);&#13;
+}&#13;
+&#13;
+*/</script>
+        <in-binding>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+            <bind name="vraHost" type="VRA:Host" export-name="vraHost"/>
+        </in-binding>
+        <out-binding>
+            <bind name="ipAddresses" type="Array/string" export-name="ipAddresses"/>
+            <bind name="fqdn" type="string" export-name="fqdn"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="200.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item3" type="foreach" comparator="0">
+        <display-name>netboxDeleteUnusedIp</display-name>
+        <in-binding>
+            <bind name="ipAddress" type="Array/string" export-name="*ipAddresses"/>
+        </in-binding>
+        <out-binding/>
+        <reference id="1d4b54c1-6dcc-4d5b-9b51-cb6716ff0705" type="Workflow"/>
+        <position y="60.0" x="340.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item0" type="link" linked-workflow-id="42cf3773-f62f-41be-9449-82075f1d4c27" comparator="0">
+        <display-name>netboxDeleteVM</display-name>
+        <script encoded="false"></script>
+        <in-binding>
+            <bind name="vmName" type="string" export-name="fqdn"/>
+        </in-binding>
+        <out-binding/>
+        <description> </description>
+        <position y="140.0" x="340.0"/>
+    </workflow-item>
+</ns2:workflow>

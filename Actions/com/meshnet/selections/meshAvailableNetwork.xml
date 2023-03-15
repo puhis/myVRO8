@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="meshAvailableNetwork" result-type="Array/string" api-version="6.0.0" id="f658076b-ec2b-4d44-8cf0-b6c2ab947933" version="0.0.0" category-name="com.meshnet.selections">
+  <param n="env" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (env == null || env == "" ) return [];
+var networks = [];
+
+if (env == 'env:meshnet-intel')
+    {
+        networks.push('network:admin-vlan12');
+        networks.push('network:meshnet-vlan15');
+        networks.push('network:collo-vlan983');
+        networks.push('network:collo-vlan986');
+        networks.push('network:db-vlan4094');
+    }
+
+if (env == 'env:meshnet-hp')
+    {
+        networks.push('network:admin-vlan12');
+        networks.push('network:meshnet-vlan15');
+    }
+
+if (env == 'env:meshnet-backup')
+    {
+        networks.push('network:admin-vlan12');
+    }
+
+return networks;
+
+/*
+
+network:collo-vlan986
+network:admin-vlan12
+network:vmware-vlan12
+network:db-vlan4094
+network:collo-vlan983
+network:meshnet-vlan15
+
+*/]]></script>
+</dunes-script-module>

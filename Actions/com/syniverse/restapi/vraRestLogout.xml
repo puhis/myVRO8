@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="vraRestLogout" result-type="string" api-version="6.0.0" id="d9140363-356c-46ce-90e3-682a5bf11ad6" version="1.1.0" allowed-operations="vfe" category-name="com.syniverse.restapi">
+  <param n="auBearerToken" t="string"><![CDATA[]]></param>
+  <param n="fqdn" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (fqdn == null || fqdn == "" ) return null;
+var restHost  = System.getModule("com.syniverse.restapi").createTransientRESTHost(fqdn);
+var logoutObj = {};
+logoutObj.idToken = auBearerToken;
+var logoutJson = JSON.stringify(logoutObj);
+var operationUrl = "/csp/gateway/am/api/auth/logout"
+var request = restHost.createRequest("POST", operationUrl, logoutJson);
+request.setHeader("Content-Type", "application/json");
+var response = request.execute();
+return response.statusCode]]></script>
+</dunes-script-module>

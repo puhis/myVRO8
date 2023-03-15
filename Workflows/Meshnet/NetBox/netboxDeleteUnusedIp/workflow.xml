@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="1d4b54c1-6dcc-4d5b-9b51-cb6716ff0705" editor-version="2.0" version="0.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>netboxDeleteUnusedIp</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="ipAddress" type="string"/>
+    </input>
+    <output/>
+    <attrib name="isPresent" type="boolean">
+        <value encoded="n">false</value>
+    </attrib>
+    <attrib name="netboxRestHost" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_url"/>
+    <attrib name="netboxToken" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_auth_token"/>
+    <attrib name="netboxIpPath" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_api_ip"/>
+    <attrib name="netboxIpId" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="580.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" comparator="0">
+        <display-name>Chech ip presence</display-name>
+        <script encoded="false">var restHost = RESTHostManager.createHost("TransientRESTHost-" + netboxRestHost);&#13;
+var transientRestHost = RESTHostManager.createTransientHostFrom(restHost);&#13;
+transientRestHost.url = netboxRestHost;&#13;
+nbresthost = transientRestHost;&#13;
+&#13;
+// check if ip already present&#13;
+var request = nbresthost.createRequest("GET", netboxIpPath + "?q=" + ipAddress);&#13;
+request.setHeader("Content-Type", "application/json");&#13;
+request.setHeader("Accept", "application/json");&#13;
+request.setHeader("Authorization", "Token " + netboxToken);&#13;
+&#13;
+System.log(netboxIpPath + "?q=" + ipAddress);&#13;
+System.log("Token " + netboxToken);&#13;
+&#13;
+var response = request.execute();&#13;
+&#13;
+System.log("******Rest Response***** ");&#13;
+statusCode = response.statusCode;&#13;
+System.log("Status code: " + statusCode);&#13;
+statusMessage = response.statusMessage;&#13;
+System.log("Status Message: " + statusMessage);&#13;
+&#13;
+// Not the fastest but display nicely the JSON : better for learning and troubleshooting purposes.&#13;
+if (response.contentAsString != "") System.log("Content as string: " + JSON.stringify(JSON.parse(response.contentAsString), null, 2));&#13;
+&#13;
+if (statusCode != 200 &amp;&amp; statusCode != 201 &amp;&amp; statusCode != 202 &amp;&amp; statusCode != 203 &amp;&amp; statusCode != 204) {&#13;
+    throw "HTTP " + statusCode + " - " + statusMessage + " : " + response.contentAsString;&#13;
+    System.log("****All Headers****");&#13;
+}&#13;
+&#13;
+var ipcheckJSON = JSON.parse(response.contentAsString);&#13;
+&#13;
+if (ipcheckJSON.count &gt; 0) {&#13;
+    isPresent = true;&#13;
+    netboxIpId = ipcheckJSON.results[0].id;&#13;
+}&#13;
+else {&#13;
+    isPresent = false;&#13;
+    netboxIpId = null;&#13;
+}&#13;
+&#13;
+</script>
+        <in-binding>
+            <bind name="ipAddress" type="string" export-name="ipAddress"/>
+            <bind name="netboxRestHost" type="string" export-name="netboxRestHost"/>
+            <bind name="netboxToken" type="string" export-name="netboxToken"/>
+            <bind name="netboxIpPath" type="string" export-name="netboxIpPath"/>
+        </in-binding>
+        <out-binding>
+            <bind name="isPresent" type="boolean" export-name="isPresent"/>
+            <bind name="netboxIpId" type="string" export-name="netboxIpId"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="task" comparator="0">
+        <display-name>Delete ip</display-name>
+        <script encoded="false">var restHost = RESTHostManager.createHost("TransientRESTHost-" + netboxRestHost);&#13;
+var transientRestHost = RESTHostManager.createTransientHostFrom(restHost);&#13;
+transientRestHost.url = netboxRestHost;&#13;
+var nbresthost = transientRestHost;&#13;
+&#13;
+if (isPresent) {&#13;
+    // update ip record in netbox&#13;
+    var tmpurl = netboxIpPath + netboxIpId + "/";&#13;
+    var request = nbresthost.createRequest("DELETE", tmpurl);&#13;
+    request.setHeader("Content-Type", "application/json");&#13;
+    request.setHeader("Accept", "application/json");&#13;
+    request.setHeader("Authorization", "Token " + netboxToken);&#13;
+    var response = request.execute();&#13;
+&#13;
+    System.log("******Rest Response***** ");&#13;
+    statusCode = response.statusCode;&#13;
+    System.log("Status code: " + statusCode);&#13;
+    statusMessage = response.statusMessage;&#13;
+    System.log("Status Message: " + statusMessage);&#13;
+&#13;
+    // Not the fastest but display nicely the JSON : better for learning and troubleshooting purposes.&#13;
+    if (response.contentAsString != "") System.log("Content as string: " + JSON.stringify(JSON.parse(response.contentAsString), null, 2));&#13;
+    if (statusCode != 200 &amp;&amp; statusCode != 201 &amp;&amp; statusCode != 202 &amp;&amp; statusCode != 203 &amp;&amp; statusCode != 204)&#13;
+        throw "HTTP " + statusCode + " - " + statusMessage + " : " + response.contentAsString;&#13;
+    System.log("****All Headers****");&#13;
+}&#13;
+else {&#13;
+    throw "THE FUCKING ERROR";&#13;
+}&#13;
+</script>
+        <in-binding>
+            <bind name="isPresent" type="boolean" export-name="isPresent"/>
+            <bind name="netboxRestHost" type="string" export-name="netboxRestHost"/>
+            <bind name="netboxToken" type="string" export-name="netboxToken"/>
+            <bind name="netboxIpPath" type="string" export-name="netboxIpPath"/>
+            <bind name="netboxIpId" type="string" export-name="netboxIpId"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="340.0"/>
+    </workflow-item>
+</ns2:workflow>

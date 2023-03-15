@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="42cf3773-f62f-41be-9449-82075f1d4c27" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>netboxDeleteVM</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="vmName" type="string"/>
+    </input>
+    <output/>
+    <attrib name="isPresent" type="boolean">
+        <value encoded="n">false</value>
+    </attrib>
+    <attrib name="netboxRestHost" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_url"/>
+    <attrib name="netboxToken" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_auth_token"/>
+    <attrib name="netboxVmPath" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_api_vm"/>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="440.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">var restHost = RESTHostManager.createHost("TransientRESTHost-" + netboxRestHost);&#13;
+var transientRestHost = RESTHostManager.createTransientHostFrom(restHost);&#13;
+transientRestHost.url = netboxRestHost;&#13;
+nbresthost = transientRestHost;&#13;
+&#13;
+// check if vm already present&#13;
+var request = nbresthost.createRequest("GET", netboxVmPath + "?q=" + vmName);&#13;
+request.setHeader("Content-Type", "application/json");&#13;
+request.setHeader("Accept", "application/json");&#13;
+request.setHeader("Authorization", "Token " + netboxToken);&#13;
+&#13;
+System.log(netboxVmPath + "?q=" + vmName);&#13;
+System.log("Token " + netboxToken);&#13;
+&#13;
+var response = request.execute();&#13;
+&#13;
+System.log("******Rest Response***** ");&#13;
+statusCode = response.statusCode;&#13;
+System.log("Status code: " + statusCode);&#13;
+statusMessage = response.statusMessage;&#13;
+System.log("Status Message: " + statusMessage);&#13;
+&#13;
+// Not the fastest but display nicely the JSON : better for learning and troubleshooting purposes.&#13;
+// if (response.contentAsString != "") System.log("Content as string: " + JSON.stringify(JSON.parse(response.contentAsString), null, 2));&#13;
+&#13;
+if (statusCode != 200 &amp;&amp; statusCode != 201 &amp;&amp; statusCode != 202 &amp;&amp; statusCode != 203 &amp;&amp; statusCode != 204) {&#13;
+    throw "HTTP " + statusCode + " - " + statusMessage + " : " + response.contentAsString;&#13;
+    System.log("****All Headers****");&#13;
+}&#13;
+&#13;
+var vmcheckJSON = JSON.parse(response.contentAsString);&#13;
+&#13;
+if (vmcheckJSON.count &gt; 0) {&#13;
+    netboxVmId = vmcheckJSON.results[0].id;&#13;
+    System.log("******** vmid - " + netboxVmPath + netboxVmId);&#13;
+    var request = nbresthost.createRequest("DELETE", netboxVmPath + netboxVmId + "/");&#13;
+    request.setHeader("Content-Type", "application/json");&#13;
+    request.setHeader("Accept", "application/json");&#13;
+    request.setHeader("Authorization", "Token " + netboxToken);&#13;
+&#13;
+    var response = request.execute();&#13;
+&#13;
+    System.log("******Rest Response***** ");&#13;
+    statusCode = response.statusCode;&#13;
+    System.log("Status code: " + statusCode);&#13;
+    statusMessage = response.statusMessage;&#13;
+    System.log("Status Message: " + statusMessage);&#13;
+&#13;
+    // Not the fastest but display nicely the JSON : better for learning and troubleshooting purposes.&#13;
+    if (response.contentAsString != "") System.log("Content as string: " + JSON.stringify(JSON.parse(response.contentAsString), null, 2));&#13;
+&#13;
+    if (statusCode != 200 &amp;&amp; statusCode != 201 &amp;&amp; statusCode != 202 &amp;&amp; statusCode != 203 &amp;&amp; statusCode != 204) {&#13;
+        throw "HTTP " + statusCode + " - " + statusMessage + " : " + response.contentAsString;&#13;
+        System.log("****All Headers****");&#13;
+    }&#13;
+}&#13;
+else {&#13;
+&#13;
+    netboxIpId = null;&#13;
+}&#13;
+&#13;
+</script>
+        <in-binding>
+            <bind name="netboxRestHost" type="string" export-name="netboxRestHost"/>
+            <bind name="netboxToken" type="string" export-name="netboxToken"/>
+            <bind name="netboxVmPath" type="string" export-name="netboxVmPath"/>
+            <bind name="vmName" type="string" export-name="vmName"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="220.0"/>
+    </workflow-item>
+</ns2:workflow>

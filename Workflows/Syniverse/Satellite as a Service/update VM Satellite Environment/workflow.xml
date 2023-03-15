@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="adffbd96-38ba-4a9f-8d2b-ab7143fd5c48" version="0.2.1" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[update VM Satellite Environment]]></display-name>
+  <description><![CDATA[move VM between Satellite Environments]]></description>
+  <position y="0.0" x="40.0"/>
+  <input>
+    <param name="satNewEnvName" type="string"/>
+    <param name="satHostToUpdate" type="string"/>
+  </input>
+  <attrib name="ght" type="REST:RESTOperation" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='57cb01d6-32e1-4203-b0c6-b155930e8190:906fe2bb-6bf8-4eb3-8679-99fd47de208e'&dunesName='REST:RESTOperation']]></value>
+  </attrib>
+  <attrib name="gen" type="REST:RESTOperation" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='57cb01d6-32e1-4203-b0c6-b155930e8190:2812423b-6ae2-4468-9070-7ba64210f401'&dunesName='REST:RESTOperation']]></value>
+  </attrib>
+  <attrib name="satUpdateHost" type="REST:RESTOperation" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='57cb01d6-32e1-4203-b0c6-b155930e8190:446be00e-bca1-41ea-8507-f47c9a5b0dd6'&dunesName='REST:RESTOperation']]></value>
+  </attrib>
+  <attrib name="satNewEnvId" type="number" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="satCurrentEnvId" type="number" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="260.0" x="40.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Get machine from satellite]]></display-name>
+    <script encoded="false"><![CDATA[System.warn("selected Host: - " + updateHost);
+if (updateHost == null || updateHost == "") { throw "Input host can not be empty!" }
+var paramhost = "/" + updateHost;
+var inParamtersValues = [paramhost];
+Server.log(ght.getHeaderParameters());
+var request = ght.createRequest(inParamtersValues, "");
+var response = request.execute();
+statusCode = response.statusCode;
+System.log("Status code: " + statusCode);
+
+contentAsString = response.contentAsString;
+var softwareJson = JSON.parse(contentAsString);
+if ((softwareJson.id == 0) || (softwareJson.id == null)) {
+    throw "Error. VM not found in Satellite."
+}
+satCurrentEnvId = softwareJson.content_facet_attributes.lifecycle_environment_id;
+System.log("Found VM: " + softwareJson.name);
+System.log("VM ID: " + softwareJson.id);
+System.log("Env ID: " + softwareJson.content_facet_attributes.lifecycle_environment_id);
+
+]]></script>
+    <in-binding>
+      <bind name="ght" type="REST:RESTOperation" export-name="ght"/>
+      <bind name="updateHost" type="string" export-name="satHostToUpdate"/>
+    </in-binding>
+    <out-binding>
+      <bind name="satCurrentEnvId" type="number" export-name="satCurrentEnvId"/>
+    </out-binding>
+    <position y="70.0" x="0.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item3" type="task">
+    <display-name><![CDATA[Get environment from satellite]]></display-name>
+    <script encoded="false"><![CDATA[System.warn("selected environment: - " + satEnvname);
+if (satEnvname == null || satEnvname == "") { throw "Input environment can not be empty!" }
+
+var inParamtersValues = ["?per_page=9999"];
+var request = gen.createRequest(inParamtersValues, "");
+var response = request.execute();
+statusCode = response.statusCode;
+System.log("Status code: " + statusCode);
+contentAsString = response.contentAsString;
+var softwareJson = JSON.parse(contentAsString);
+for (i = 0; i < softwareJson.total; i++) {
+    if (softwareJson.results[i].name == satEnvname) {
+        satEnvId = softwareJson.results[i].id;
+        break;
+    }
+
+}
+if (satEnvId <= satCurrentEnvId) { throw "Environment downgrade is not allowed." }
+System.log("New satEnvId: " + satEnvId);
+
+
+
+]]></script>
+    <in-binding>
+      <bind name="gen" type="REST:RESTOperation" export-name="gen"/>
+      <bind name="satEnvname" type="string" export-name="satNewEnvName"/>
+      <bind name="satCurrentEnvId" type="number" export-name="satCurrentEnvId"/>
+    </in-binding>
+    <out-binding>
+      <bind name="satEnvId" type="number" export-name="satNewEnvId"/>
+    </out-binding>
+    <position y="130.0" x="0.0"/>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item0" type="task">
+    <display-name><![CDATA[Update machine environment]]></display-name>
+    <script encoded="false"><![CDATA[System.warn("Updating Host: - " + updateHost + " into environment " + satEnvname + " with id " + satEnvId);
+
+var inParamtersValues = [updateHost];
+var content = "";
+var mutotext = {
+    "content_facet_attributes": {
+        "lifecycle_environment_id": satEnvId
+    }
+};
+
+content = JSON.stringify(mutotext);
+System.log("content: " + content);
+
+var request = satUpdateHost.createRequest(inParamtersValues, content);
+var response = request.execute();
+
+statusCode = response.statusCode;
+System.log("Status code: " + statusCode);
+
+if (statusCode != 200) { throw "Operation uncomplete. Please check inputs." }
+
+
+]]></script>
+    <in-binding>
+      <bind name="satUpdateHost" type="REST:RESTOperation" export-name="satUpdateHost"/>
+      <bind name="updateHost" type="string" export-name="satHostToUpdate"/>
+      <bind name="satEnvname" type="string" export-name="satNewEnvName"/>
+      <bind name="satEnvId" type="number" export-name="satNewEnvId"/>
+    </in-binding>
+    <out-binding/>
+    <position y="200.0" x="0.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

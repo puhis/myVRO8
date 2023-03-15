@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="88033a23-c92f-4c98-b0e9-20d94837b8ed" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>netboxAssignNewIp</display-name>
+    <position y="50.0" x="80.0"/>
+    <input>
+        <param name="fqdn" type="string"/>
+        <param name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData"/>
+    </input>
+    <output/>
+    <attrib name="isPresent" type="boolean">
+        <value encoded="n">false</value>
+    </attrib>
+    <attrib name="netboxRestHost" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_url"/>
+    <attrib name="netboxToken" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_auth_token"/>
+    <attrib name="netboxIpPath" type="string" conf-id="7afe6fd3-f7e5-413a-bdf5-45694ed90f8f" conf-key="nb_api_ip"/>
+    <attrib name="netboxIpId" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="560.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" comparator="0">
+        <display-name>Chech ip presence</display-name>
+        <script encoded="false">var restHost = RESTHostManager.createHost("TransientRESTHost-" + netboxRestHost);&#13;
+var transientRestHost = RESTHostManager.createTransientHostFrom(restHost);&#13;
+transientRestHost.url = netboxRestHost;&#13;
+nbresthost = transientRestHost;&#13;
+&#13;
+// check if ip already present&#13;
+var request = nbresthost.createRequest("GET", netboxIpPath + "?q=" + ipAddrData.ip+"/"+ipAddrData.cdir);&#13;
+request.setHeader("Content-Type", "application/json");&#13;
+request.setHeader("Accept", "application/json");&#13;
+request.setHeader("Authorization", "Token " + netboxToken);&#13;
+var response = request.execute();&#13;
+&#13;
+System.log("******Rest Response***** ");&#13;
+statusCode = response.statusCode;&#13;
+&#13;
+System.log("Status code: " + statusCode);&#13;
+&#13;
+if (statusCode != 200 &amp;&amp; statusCode != 201 &amp;&amp; statusCode != 202 &amp;&amp; statusCode != 203 &amp;&amp; statusCode != 204) {&#13;
+    throw "HTTP " + statusCode + " - " + statusMessage + " : " + response.contentAsString;&#13;
+    System.log("****All Headers****");&#13;
+}&#13;
+&#13;
+var ipcheckJSON = JSON.parse(response.contentAsString);&#13;
+if (ipcheckJSON.count &gt; 0) {&#13;
+    isPresent = true;&#13;
+    netboxIpId = ipcheckJSON.results[0].id;&#13;
+}&#13;
+else {&#13;
+    isPresent = false;&#13;
+    netboxIpId = null;&#13;
+}&#13;
+</script>
+        <in-binding>
+            <bind name="netboxRestHost" type="string" export-name="netboxRestHost"/>
+            <bind name="netboxToken" type="string" export-name="netboxToken"/>
+            <bind name="netboxIpPath" type="string" export-name="netboxIpPath"/>
+            <bind name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData" export-name="ipAddrData"/>
+        </in-binding>
+        <out-binding>
+            <bind name="isPresent" type="boolean" export-name="isPresent"/>
+            <bind name="netboxIpId" type="string" export-name="netboxIpId"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="180.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="task" comparator="0">
+        <display-name>Create or Update ip</display-name>
+        <script encoded="false">var restHost = RESTHostManager.createHost("TransientRESTHost-" + netboxRestHost);&#13;
+var transientRestHost = RESTHostManager.createTransientHostFrom(restHost);&#13;
+transientRestHost.url = netboxRestHost;&#13;
+var nbresthost = transientRestHost;&#13;
+&#13;
+if (isPresent) {&#13;
+    // update ip record in netbox&#13;
+    //var request = restClient.createRequest(operation, url, content);&#13;
+    var mutotext = {&#13;
+        "status": "active",&#13;
+        "description": fqdn,&#13;
+        "dns_name": fqdn&#13;
+    };&#13;
+    var content = JSON.stringify(mutotext);&#13;
+    System.log("*** Update content: " + content);&#13;
+&#13;
+    var tmpurl = netboxIpPath + netboxIpId + "/";&#13;
+    var request = nbresthost.createRequest("PATCH", tmpurl, content);&#13;
+    request.setHeader("Content-Type", "application/json");&#13;
+    request.setHeader("Accept", "application/json");&#13;
+    request.setHeader("Authorization", "Token " + netboxToken);&#13;
+    var response = request.execute();&#13;
+&#13;
+    System.log("******Rest Response***** ");&#13;
+    statusCode = response.statusCode;&#13;
+    System.log("Status code: " + statusCode);&#13;
+    if (statusCode != 200 &amp;&amp; statusCode != 201 &amp;&amp; statusCode != 202 &amp;&amp; statusCode != 203 &amp;&amp; statusCode != 204)&#13;
+        throw "HTTP " + statusCode + " - " + statusMessage + " : " + response.contentAsString;&#13;
+    System.log("****All Headers****");&#13;
+}&#13;
+else {&#13;
+    // create ip record in netbox&#13;
+    var ipa = ipAddrData.ip + "/" + ipAddrData.cdir;&#13;
+    var vrfid = ipAddrData.vrfid;&#13;
+    var mutotext = {&#13;
+        "address": ipa,&#13;
+        "status": "active",&#13;
+        "description": fqdn,&#13;
+        "dns_name": fqdn,&#13;
+        "vrf": vrfid&#13;
+    };&#13;
+    var content = JSON.stringify(mutotext);&#13;
+    System.log("*** Create content: " + content);&#13;
+&#13;
+    var request = nbresthost.createRequest("POST", netboxIpPath, content);&#13;
+    request.setHeader("Content-Type", "application/json");&#13;
+    request.setHeader("Accept", "application/json");&#13;
+    request.setHeader("Authorization", "Token " + netboxToken);&#13;
+    var response = request.execute();&#13;
+&#13;
+    System.log("******Rest Response***** ");&#13;
+    statusCode = response.statusCode;&#13;
+    System.log("Status code: " + statusCode);&#13;
+    if (statusCode != 200 &amp;&amp; statusCode != 201 &amp;&amp; statusCode != 202 &amp;&amp; statusCode != 203 &amp;&amp; statusCode != 204)&#13;
+        throw "HTTP " + statusCode + " - " + statusMessage + " : " + response.contentAsString;&#13;
+    System.log("****All Headers****");&#13;
+}&#13;
+</script>
+        <in-binding>
+            <bind name="isPresent" type="boolean" export-name="isPresent"/>
+            <bind name="netboxRestHost" type="string" export-name="netboxRestHost"/>
+            <bind name="netboxToken" type="string" export-name="netboxToken"/>
+            <bind name="netboxIpPath" type="string" export-name="netboxIpPath"/>
+            <bind name="fqdn" type="string" export-name="fqdn"/>
+            <bind name="netboxIpId" type="string" export-name="netboxIpId"/>
+            <bind name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData" export-name="ipAddrData"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="340.0"/>
+    </workflow-item>
+</ns2:workflow>

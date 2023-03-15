@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="64897d0b-ab90-41e8-b4e9-bc528cc06c4c" editor-version="2.0" version="0.0.0" api-version="6.0.0" restartMode="1" resumeFromFailedMode="0">
+    <display-name>getAllVraProperties</display-name>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output/>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="660.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item0" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">System.log("vRA event ID: " + System.getContext().getParameter("__metadata_eventTopicId"));&#13;
+&#13;
+System.log("Parameters:");&#13;
+var parameterNames = System.getContext().parameterNames();&#13;
+for each (var parameter in parameterNames) {&#13;
+	System.log("   " + parameter + " : " + System.getContext().getParameter(parameter));&#13;
+}&#13;
+&#13;
+System.log("inputProperties:");&#13;
+System.log(JSON.stringify(inputProperties, null, 2));</script>
+        <in-binding>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+        </in-binding>
+        <out-binding/>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="320.0"/>
+    </workflow-item>
+</ns2:workflow>

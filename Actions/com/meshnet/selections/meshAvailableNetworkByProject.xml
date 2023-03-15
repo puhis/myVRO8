@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="meshAvailableNetworkByProject" result-type="Array/string" api-version="6.0.0" id="38d65b51-e29f-4d2e-9c6d-f70375ffa25f" version="0.0.0" category-name="com.meshnet.selections">
+  <param n="projectId" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[var netarray = [];
+if (projectId == null || projectId == "") return [];
+
+// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("Meshnet");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "i109 vra host") {
+        configElement = configuration;
+        break;
+    }
+}
+if (!configElement) throw "no ConfigElement found";
+var vraHost = configElement.getAttributeWithKey("vraDefault").value;
+if (vraHost == null) return [];
+var project = System.getModule("com.vmware.vra.extensibility.plugin.rest.project").getProject(vraHost, projectId);
+
+var allowednetall = "";
+/*
+networkprofiletag = project.constraints.network.conditions;
+for each(var item in project.constraints.network.conditions) {
+    System.warn(item.expression.value);
+    System.warn(item.expression.key);
+    netarray.push(item.expression.key + ":" + item.expression.value);
+}
+*/
+for (var key in project.properties) {
+    if (key = "allowednetworks") { allowednetall = project.properties[key] }
+}
+netarray = allowednetall.split(/,/);
+return netarray;
+]]></script>
+</dunes-script-module>

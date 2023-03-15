@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="importCert" result-type="void" api-version="6.0.0" id="483af872-43f9-4524-9a74-51a0e271ea87" version="1.1.0" allowed-operations="vfe" category-name="com.syniverse.restapi">
+  <description><![CDATA[Imports a Certificate from URL 
+
+Inputs:  url
+
+Cert is automatically trusted.
+NO confirmation
+NO Warnings
+Expired CERT is only reject
+
+Use at your own Risk... but sure makes life easier.]]></description>
+  <param n="url" t="string"><![CDATA[URL for certificate to import]]></param>
+  <script encoded="false"><![CDATA[if (url == null || url == "" ) throw error;
+var ld = Config.getKeystores().getImportCAFromUrlAction();
+var model = ld.getModel();
+ld.setCertificateAlias("");
+var model = ld.getModel();
+model.value = url;
+var certValidation = ld.validateCertificates();
+var certInfo = ld.getCertInfo();
+System.debug(certInfo);
+if ( certValidation.isCertificateExpired() == true )   throw "Certificate is expired. \n " + certinfo;
+var error = ld.execute();
+if (error != null) throw error;]]></script>
+</dunes-script-module>

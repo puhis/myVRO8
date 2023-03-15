@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getCidrByVlanID" result-type="string" api-version="6.0.0" id="0e394108-8b0e-4300-83c8-7005fc6b7225" version="0.0.0" category-name="com.meshnet.netbox">
+  <param n="netname" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (netname == null || netname == "") return [];
+
+// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("NetBox");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "Netbox i109a config") {
+        configElement = configuration;
+        break;
+    }
+}
+if (!configElement) throw "no ConfigElement found";
+var netboxRestHost = configElement.getAttributeWithKey("nb_url").value;
+var netboxToken = configElement.getAttributeWithKey("nb_auth_token").value;
+var netboxPrefixPath = configElement.getAttributeWithKey("nb_api_prefixes").value;
+//System.log(netboxRestHost);
+//System.log(netboxToken);
+//System.log(netboxPrefixPath);
+
+var restHost = RESTHostManager.createHost("TransientRESTHost-" + netboxRestHost);
+var transientRestHost = RESTHostManager.createTransientHostFrom(restHost);
+transientRestHost.url = netboxRestHost;
+nbresthost = transientRestHost;
+
+var vlanid = netname.split('vlan')[1];
+var freeiplist = [];
+if (vlanid == null) {
+    System.error("Vlan-ID is not set");
+}
+else {
+    // get prefix ID from netbox via vlan_id
+    var request = nbresthost.createRequest("GET", netboxPrefixPath + "?limit=0&vlan_vid=" + vlanid);
+    request.setHeader("Content-Type", "application/json");
+    request.setHeader("Accept", "application/json");
+    request.setHeader("Authorization", "Token " + netboxToken);
+    vlandetails = request.execute();
+    vlandetailsJSON = JSON.parse(vlandetails.contentAsString)
+    var netmaskbin = vlandetailsJSON.results[0].prefix.split('/')[1];
+}
+return netmaskbin;
+]]></script>
+</dunes-script-module>

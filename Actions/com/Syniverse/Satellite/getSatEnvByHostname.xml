@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getSatEnvByHostname" result-type="string" api-version="6.0.0" id="f2c1af69-ff16-4623-89b5-b9d98c521f35" version="0.0.1" allowed-operations="vfe" category-name="com.Syniverse.Satellite">
+  <param n="restOperation" t="REST:RESTOperation"><![CDATA[]]></param>
+  <param n="hostname" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[//var acceptHeadersValue = "";
+//var content = "";
+
+if (hostname == null || hostname == "" ) return "not-found-here";
+
+paramhost = "/"  + hostname;
+
+var inParamtersValues = [paramhost];
+Server.log(restOperation.getHeaderParameters());
+
+var request = restOperation.createRequest(inParamtersValues, "");
+
+System.log("Request: " + request);
+System.log("Request URL: " + request.fullUrl);
+var response = request.execute();
+//System.log("Response: " + response);
+statusCode = response.statusCode;
+//statusCodeAttribute = statusCode;
+System.log("Status code: " + statusCode);
+//contentLength = response.contentLength;
+//headers = response.getAllHeaders();
+contentAsString = response.contentAsString;
+System.log("Content as string: " + contentAsString);
+
+var softwareJson = JSON.parse(contentAsString);
+
+if ((softwareJson.id == 0) || (softwareJson.id == null)) {
+    return "not-found-here"
+}
+
+var resulting = softwareJson.content_facet_attributes.lifecycle_environment_name;
+System.log("Found: " + resulting);
+
+return resulting;]]></script>
+</dunes-script-module>

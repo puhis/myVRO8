@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="vraRestExecuteAction" result-type="string" api-version="6.0.0" id="10ac4cbe-e255-4009-82d6-bc5b5b0e9af0" version="1.1.0" allowed-operations="vfe" category-name="com.syniverse.restapi">
+  <param n="method" t="string"><![CDATA[]]></param>
+  <param n="operationUrl" t="string"><![CDATA[]]></param>
+  <param n="content" t="string"><![CDATA[]]></param>
+  <param n="auBearerToken" t="string"><![CDATA[]]></param>
+  <param n="fqdn" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[var restHost  = System.getModule("com.syniverse.restapi").createTransientRESTHost(fqdn);
+if(content){
+    var request = restHost.createRequest(method, operationUrl, content);
+}
+else{
+    var request = restHost.createRequest(method, operationUrl, "");
+}
+request.setHeader("Content-Type", "application/json");
+request.setHeader("Authorization", "Bearer " + auBearerToken);
+ 
+var response = request.execute();
+var statusCode = response.statusCode;
+var responseContent = response.contentAsString;
+if(statusCode > 399) {
+    System.error(responseContent);
+    throw "executeRestAction Failed, Status Code: " + statusCode;
+} 
+return responseContent;
+]]></script>
+</dunes-script-module>
