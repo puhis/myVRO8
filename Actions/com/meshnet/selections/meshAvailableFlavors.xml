@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="meshAvailableFlavors" result-type="Array/string" api-version="6.0.0" id="cb1864c7-6231-486c-a01b-6735d097de0e" version="0.0.0" category-name="com.meshnet.selections">
+  <script encoded="false"><![CDATA[var images = [];
+
+// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("Meshnet");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "i109 vra host") {
+        configElement = configuration;
+        break;
+    }
+}
+
+if (!configElement) throw "no ConfigElement found";
+var vraHost = configElement.getAttributeWithKey("vraDefault").value;
+if (vraHost == null) return [];
+
+//images = VraEntitiesFinder.getAllFlavorMapping(vraHost);
+//return images;
+
+var objects = VraEntitiesFinder.getFlavorProfiles(vraHost);
+
+var flavorMappingsProp = new Properties();
+for each(var object in objects) {
+    var cloudAccountType = System.getModule("com.vmware.vra.extensibility.plugin.rest.iaas").getCloudAccountTypeCached(vraHost, object.cloudAccountId, 24 * 3600);
+    System.log(cloudAccountType);
+    if (cloudAccountType == "vsphere") {
+        System.log(object.flavorMappingsExtension);
+        var bb = object.flavorMappingsExtension;
+        var aa = JSON.parse(bb);
+        for (var mapping in aa.mapping) {
+            flavorMappingsProp.put(mapping);
+        }
+    }
+}
+return flavorMappingsProp.keys.sort();
+]]></script>
+</dunes-script-module>

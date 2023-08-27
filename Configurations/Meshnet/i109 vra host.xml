@@ -14,5 +14,11 @@
     <att name="vraDefault" type="VRA:Host" read-only="false">
       <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='d_Nba4WvQEm5sCw9ufWJfA'&dunesName='VRA:Host']]></value>
     </att>
+    <att name="dns1" type="PowerShell:PowerShellHost" read-only="false">
+      <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='8f50430b-ec49-4956-9056-3f20a46eac52'&dunesName='PowerShell:PowerShellHost']]></value>
+    </att>
+    <att name="dns2" type="PowerShell:PowerShellHost" read-only="false">
+      <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='39cc84d0-2daf-43df-9249-982a56b2b417'&dunesName='PowerShell:PowerShellHost']]></value>
+    </att>
   </atts>
 </config-element>

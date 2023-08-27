@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<package>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='0e394108-8b0e-4300-83c8-7005fc6b7225'&dunesName='Action'&name='getCidrByVlanID'&category='com.meshnet.netbox']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='1d4b54c1-6dcc-4d5b-9b51-cb6716ff0705'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='42cf3773-f62f-41be-9449-82075f1d4c27'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='515166e2-5c63-4ac2-b197-a1bd4b82c2d7'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='62ae8260-e1fe-4d47-8aad-a0091862e04d'&dunesName='Action'&name='invokeRestOperation'&category='com.vmware.vra.extensibility.plugin.rest']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/ConfigurationElement?id='7afe6fd3-f7e5-413a-bdf5-45694ed90f8f'&dunesName='ConfigurationElement']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='810785a3-75b8-4afd-ab76-aac7ac4ded16'&dunesName='Action'&name='getObjectFromUrl'&category='com.vmware.vra.extensibility.plugin.rest']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='88033a23-c92f-4c98-b0e9-20d94837b8ed'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='89afe726-a7f3-4bcf-be66-92d50c0d9337'&dunesName='Action'&name='getFreeIpInVlan'&category='com.meshnet.netbox']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='8e79596f-49f8-4949-9bca-b135cb7851c9'&dunesName='Action'&name='getTenantByVlanID'&category='com.meshnet.netbox']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='F5858080808080808080808080808080158080800126658240472157fdafc0fce'&dunesName='Action'&name='invokeScript'&category='com.vmware.library.powershell']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='a8ddf303-d890-4933-b478-bd8686baabb0'&dunesName='Action'&name='dnsCheckRecord'&category='com.meshnet.ossautomation']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='a93faf89-b5a1-4970-9760-21d82a48bfc0'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='ae4c150c-1afd-4839-8043-ad8f08157fbd'&dunesName='Action'&name='getVrfByVlanID'&category='com.meshnet.netbox']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/ConfigurationElement?id='bc44d7ea-8d80-440c-a6b6-cfb1a4b9507a'&dunesName='ConfigurationElement']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Workflow?id='c2749e22-efce-44d5-a56f-0e9027e8e8ea'&dunesName='Workflow']]></elm>
+<elm src-category='null'><![CDATA[dunes://service.dunes.ch/Action?id='e6abcad2-d0d0-4cf7-a992-1e68b7154da1'&dunesName='Action'&name='getNetMaskSizeByVlanID'&category='com.meshnet.netbox']]></elm>
+<used-plugin name='PowerShell' version='1.1.1' />
+<used-plugin name='VRA' version='8.12.0' />
+</package>

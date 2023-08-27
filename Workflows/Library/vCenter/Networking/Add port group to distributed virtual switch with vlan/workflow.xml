@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item0" object-name="Workflow:name=generic" id="388e8763-a053-4437-b13e-7137e2d2d4d0" editor-version="2.0" version="0.1.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Add port group to distributed virtual switch with vlan</display-name>
+    <description>Adds a new distributed virtual port group to the specified distributed virtual switch and configure vlan ID.</description>
+    <position y="40.0" x="160.0"/>
+    <input>
+        <param name="dvSwitch" type="VC:VmwareDistributedVirtualSwitch">
+            <description>Distributed virtual switch to attach port group to</description>
+        </param>
+        <param name="dvPortGroupName" type="string">
+            <description>Name of new port group</description>
+        </param>
+        <param name="numPorts" type="number">
+            <description>Number of ports in new port group</description>
+        </param>
+        <param name="dvPortgroupType" type="string">
+            <description>Type of portgroup: earlyBinding, lateBinding, ephemeral</description>
+        </param>
+        <param name="dvPortGroupVlanID" type="string"/>
+    </input>
+    <output>
+        <param name="dvPortgroup" type="VC:DistributedVirtualPortgroup"/>
+    </output>
+    <attrib name="dvPortgroupCreationTask" type="VC:Task">
+        <value encoded="n"/>
+        <description>Task to wait for</description>
+    </attrib>
+    <attrib name="progress" type="boolean">
+        <value encoded="n">true</value>
+        <description>Log progess while waiting for the task</description>
+    </attrib>
+    <attrib name="pollRate" type="number">
+        <value encoded="n">3.0</value>
+        <description>Polling rate for the task state [seconds]</description>
+    </attrib>
+    <workflow-item name="item0" out-name="item2" type="task" comparator="0">
+        <display-name>Add port group to distributed virtual switch</display-name>
+        <script encoded="false">// ------- AddDVPortgroup_Task -------
+
+var DVPortgroupConfigSpec = new VcDVPortgroupConfigSpec()
+
+DVPortgroupConfigSpec.name = dvPortGroupName;
+DVPortgroupConfigSpec.numPorts = numPorts;
+DVPortgroupConfigSpec.defaultPortConfig = new VcVMwareDVSPortSetting();
+DVPortgroupConfigSpec.defaultPortConfig.vlan = new VcVmwareDistributedVirtualSwitchVlanIdSpec();
+DVPortgroupConfigSpec.defaultPortConfig.vlan.inherited = false;
+DVPortgroupConfigSpec.defaultPortConfig.vlan.vlanId = dvPortGroupVlanID;
+DVPortgroupConfigSpec.type = dvPortgroupType; // possible values: earlyBinding, lateBinding, ephemeral
+// The task requires an array
+var specArray = new Array();
+specArray.push(DVPortgroupConfigSpec);
+dvPortgroupCreationTask = dvSwitch.addDVPortgroup_Task(specArray);
+</script>
+        <in-binding>
+            <bind name="dvPortGroupName" type="string" export-name="dvPortGroupName"/>
+            <bind name="dvPortgroupType" type="string" export-name="dvPortgroupType"/>
+            <bind name="dvSwitch" type="VC:VmwareDistributedVirtualSwitch" export-name="dvSwitch"/>
+            <bind name="numPorts" type="number" export-name="numPorts"/>
+            <bind name="dvPortGroupVlanID" type="string" export-name="dvPortGroupVlanID"/>
+        </in-binding>
+        <out-binding>
+            <bind name="dvPortgroupCreationTask" type="VC:Task" export-name="dvPortgroupCreationTask"/>
+        </out-binding>
+        <position y="80.0" x="120.0"/>
+    </workflow-item>
+    <workflow-item name="item1" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="190.0" x="160.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item3" type="task" script-module="com.vmware.library.vc.basic/vim3WaitTaskEnd" comparator="0">
+        <display-name>vim3WaitTaskEnd</display-name>
+        <script encoded="false">//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.basic").vim3WaitTaskEnd(task,progress,pollRate) ;</script>
+        <in-binding>
+            <bind name="task" type="VC:Task" export-name="dvPortgroupCreationTask">
+                <description>Task to wait for</description>
+            </bind>
+            <bind name="pollRate" type="number" export-name="pollRate">
+                <description>Polling rate for the task state [seconds]</description>
+            </bind>
+            <bind name="progress" type="boolean" export-name="progress">
+                <description>Log progess while waiting for the task</description>
+            </bind>
+        </in-binding>
+        <out-binding>
+            <bind name="actionResult" type="Any" export-name="dvPortgroup"/>
+        </out-binding>
+        <description>Wait for a vCenter Server task to end.
+When task endsd return the task result if any.</description>
+        <position y="120.0" x="120.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item1" type="task" comparator="0">
+        <display-name>Find the result</display-name>
+        <script encoded="false">for each (portG in dvSwitch.portgroup) {
+	if ( portG.config.name == dvPortGroupName ) {
+		dvPortgroup = portG;
+		break;
+	}
+}</script>
+        <in-binding>
+            <bind name="dvPortGroupName" type="string" export-name="dvPortGroupName"/>
+            <bind name="dvSwitch" type="VC:VmwareDistributedVirtualSwitch" export-name="dvSwitch"/>
+        </in-binding>
+        <out-binding>
+            <bind name="dvPortgroup" type="VC:DistributedVirtualPortgroup" export-name="dvPortgroup"/>
+        </out-binding>
+        <position y="160.0" x="120.0"/>
+    </workflow-item>
+</ns2:workflow>

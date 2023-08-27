@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="7a2333b9-6505-4437-934a-59eed1a5cade" version="0.1.0" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Image mappings update across regions]]></display-name>
+  <description><![CDATA[Use case : A new template has been made available in many regions. Using the vRA UI require to select this new template for an image profile in each region. This can be a manual task lasting hours. Using this workflow the image can be selected once and applied to all the regions.
+The workflow features a data grid allowing to filter out a account type a (vSphere, AWS, Azure) as typically the images are named differently from one account to another.
+The workflow also cache the image mappings to avoid slowing down the inputs as this can happen in vRA UI with hundreds of regions.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="imageProfileName" type="string"/>
+    <param name="vraHost" type="VRA:Host"/>
+    <param name="imageProperties" type="Array/Properties"/>
+    <param name="nameSearch" type="string"/>
+    <param name="name" type="string"/>
+  </input>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="50.0" x="660.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Update image mappings]]></display-name>
+    <script encoded="false"><![CDATA[var objects = System.getModule("com.vmware.vra.extensibility.plugin.rest.iaas").getImageProfileMappingsCached(vraHost, 60);
+var iaasModule = System.getModule("com.vmware.vra.extensibility.plugin.rest.iaas");
+
+// Get imageProfielIDs to update : the ones in the imageProperties different from image name
+var imageProfilesIdToUpdate = new Array();
+for each (var imageProperty in imageProperties) {
+    if (imageProperty.get("name") != name) imageProfilesIdToUpdate.push(imageProperty.get("id"));
+    else System.log(imageProperty.get("cloudAccountType") + " " + 
+                    imageProperty.get("cloudAccount") + " " + 
+                    imageProperty.get("region") + 
+                    " is already set with " + name + " image - skipping");
+}
+
+// For each image profile
+
+var notFound;
+for each (var object in objects)
+{
+    if (imageProfilesIdToUpdate.indexOf(object.id) >-1) {
+        notFound = 0;            
+        try {
+            var newImageMappingId = iaasModule.getFabricImageIdByExternalRegionIdAndByNameQS(vraHost, object.cloudAccountId, object.externalRegionId, name);
+        } catch(e) {
+            System.warn(e);
+            notFound = 1;
+        };
+
+        var updateImageProfileSpec = new Object();
+        updateImageProfileSpec.imageMapping = new Object();
+
+        //System.log(JSON.stringify(object));
+        for each (var imageMappingName in Object.keys(object.imageMappings.mapping)) {
+            updateImageProfileSpec.imageMapping[imageMappingName] = new Object();
+            if (imageMappingName == imageProfileName) {
+                updateImageProfileSpec.imageMapping[imageMappingName]['id'] = newImageMappingId;
+                updateImageProfileSpec.imageMapping[imageMappingName]['name'] = name; 
+            }
+            else {
+                updateImageProfileSpec.imageMapping[imageMappingName]['id'] = object.imageMappings.mapping[imageMappingName]['id'];
+                updateImageProfileSpec.imageMapping[imageMappingName]['name'] = object.imageMappings.mapping[imageMappingName]['name'];
+            }
+            updateImageProfileSpec.imageMapping[imageMappingName]['constraints'] = object.imageMappings.mapping[imageMappingName]['constraints'];
+        }
+
+        //PATCH
+        if (notFound == 0) System.log("Patching image mapping " + imageProfileName + " (" + object.id + ') with image "' + name + '" (' + newImageMappingId + ')');
+        else {
+            System.log("Patching image mapping " + imageProfileName + " (" + object.id +  ') with image "Image not found - ' + name + '"');
+            delete updateImageProfileSpec.imageMapping[imageProfileName]['id'];
+            updateImageProfileSpec.imageMapping[imageProfileName]['name'] = "Image not found - " + name;
+
+        }
+        var operation = "PATCH";
+        var url = "/iaas/api/image-profiles/" + object.id;
+        var content = JSON.stringify(updateImageProfileSpec);
+        System.debug("PATCH CONTENT :");
+        System.debug(content)
+        try {
+            var contentAsString = System.getModule("com.vmware.vra.extensibility.plugin.rest").invokeRestOperation(vraHost, operation, url, content);
+            System.debug("PATCH RESULT :");
+            System.debug(contentAsString);
+        } catch (e) {
+            System.error("Unable to Patch object url : " + url + "\n" + e + "\nWith Content : " + content);
+        }
+    } 
+}]]></script>
+    <in-binding>
+      <bind name="vraHost" type="VRA:Host" export-name="vraHost"/>
+      <bind name="imageProperties" type="Array/Properties" export-name="imageProperties"/>
+      <bind name="imageProfileName" type="string" export-name="imageProfileName"/>
+      <bind name="name" type="string" export-name="name"/>
+      <bind name="nameSearch" type="string" export-name="nameSearch"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="60.0" x="240.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="task">
+    <display-name><![CDATA[Clean cache]]></display-name>
+    <script encoded="false"><![CDATA[//Only removing image mappings as we have just changed these
+var objectId = "getImageProfileMappings_" + vraHost.name;
+DynamicTypesManager.removeFromCache(objectId);]]></script>
+    <in-binding>
+      <bind name="vraHost" type="VRA:Host" export-name="vraHost"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="60.0" x="420.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

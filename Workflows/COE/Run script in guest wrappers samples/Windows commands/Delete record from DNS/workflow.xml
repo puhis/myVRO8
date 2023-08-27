@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item0" object-name="workflow:name=generic" id="7dda9f00-3c75-4852-8ba8-d388e0ff8a17" version="0.0.6" api-version="6.0.0" allowed-operations="evf" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Delete record from DNS]]></display-name>
+  <description><![CDATA[Delete record from Microsoft DNS server using dnscmd.exe - PTR is also removed automatically by this command.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="vm" type="VC:VirtualMachine">
+      <description><![CDATA[VM With dnscmd.exe installed]]></description>
+    </param>
+    <param name="vmUsername" type="string">
+      <description><![CDATA[DNS Admin user]]></description>
+    </param>
+    <param name="vmPassword" type="SecureString">
+      <description><![CDATA[DNS Admin password]]></description>
+    </param>
+    <param name="dnsServerFqdn" type="string">
+      <description><![CDATA[Example : ns.yourdomain.lab]]></description>
+    </param>
+    <param name="zoneNameFqdn" type="string">
+      <description><![CDATA[Example: yourdomain.lab]]></description>
+    </param>
+    <param name="recordName" type="string">
+      <description><![CDATA[Example: machine1]]></description>
+    </param>
+    <param name="recordType" type="string">
+      <description><![CDATA[Example: A]]></description>
+    </param>
+    <param name="recordValue" type="string">
+      <description><![CDATA[Example: 192.168.1.100]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="scriptOutputText" type="string"/>
+    <param name="scriptExitCode" type="number"/>
+  </output>
+  <attrib name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+    <description><![CDATA[Key = string to replace in source file Value = replacing string]]></description>
+  </attrib>
+  <attrib name="dnsServerFqdnVariable" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[DNS_server_FQDN]]]></value>
+  </attrib>
+  <attrib name="zoneNameFqdnVariable" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[zone_name_FQDN]]]></value>
+  </attrib>
+  <attrib name="recordNameVariable" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[record_name]]]></value>
+  </attrib>
+  <attrib name="recordTypeVariable" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[record_type]]]></value>
+  </attrib>
+  <attrib name="recordValueVariable" type="string" read-only="false">
+    <value encoded="n"><![CDATA[[record_value]]]></value>
+  </attrib>
+  <attrib name="scriptConfigurationResource" type="ResourceElement" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/ResourceElement?id='e20970d1-663d-4c68-a941-c4d7afa6b07d'&dunesName='ResourceElement']]></value>
+  </attrib>
+  <workflow-item  name="item1" out-name="item2" type="link" linked-workflow-id="24c23d4c-12be-4889-aa66-29b8a450f1cd">
+    <display-name><![CDATA[Run script in VM guest]]></display-name>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="vm"/>
+      <bind name="vmUsername" type="string" export-name="vmUsername"/>
+      <bind name="vmPassword" type="SecureString" export-name="vmPassword"/>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables">
+        <description><![CDATA[Key = string to replace in source file Value = replacing string]]></description>
+      </bind>
+      <bind name="scriptConfigurationResource" type="ResourceElement" export-name="scriptConfigurationResource"/>
+    </in-binding>
+    <out-binding>
+      <bind name="scriptExitCodeOut" type="number" export-name="scriptExitCode"/>
+      <bind name="scriptOutputTextOut" type="string" export-name="scriptOutputText"/>
+    </out-binding>
+    <description><![CDATA[Run a script in a guest using existing script configurations. Replaces variables in the script. Optionaly copy additional file and replace variable there.
+
+If no working directory is set:
+- set it to guest temp directory if there is a resource file copied (%tmp% for Windows
+- set it to default (c:\windows\system32 for Windows /root for Linux) if there is no resource file copied).]]></description>
+    <position y="55.40909090909091" x="924.5"/>
+  </workflow-item >
+  <workflow-item  name="item0" out-name="item3" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="dnsServerFqdnVariable"/>
+      <bind name="replacingString" type="string" export-name="dnsServerFqdn"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="55.40909090909091" x="205.0"/>
+  </workflow-item >
+  <workflow-item  name="item3" out-name="item4" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="zoneNameFqdnVariable"/>
+      <bind name="replacingString" type="string" export-name="zoneNameFqdn"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"/>
+  </workflow-item >
+  <workflow-item  name="item2" type="end" end-mode="0">
+    <position y="109.04545454545453" x="964.5"/>
+  </workflow-item >
+  <workflow-item  name="item4" out-name="item5" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="recordNameVariable"/>
+      <bind name="replacingString" type="string" export-name="recordName"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="55.40909090909091" x="484.5"/>
+  </workflow-item >
+  <workflow-item  name="item5" out-name="item6" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="recordTypeVariable"/>
+      <bind name="replacingString" type="string" export-name="recordType"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="55.40909090909091" x="624.5"/>
+  </workflow-item >
+  <workflow-item  name="item6" out-name="item1" type="task" script-module="com.vmware.coe.copyAndRunScriptsInGuest/addScriptVariableToArrayOfScriptVariables">
+    <display-name><![CDATA[addScriptVariableToArrayOfScriptVariables]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.coe.copyAndRunScriptsInGuest").addScriptVariableToArrayOfScriptVariables(scriptVariables,stringToReplace,replacingString) ;]]></script>
+    <in-binding>
+      <bind name="scriptVariables" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+      <bind name="stringToReplace" type="string" export-name="recordValueVariable"/>
+      <bind name="replacingString" type="string" export-name="recordValue"/>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="Array/CompositeType(stringToReplace:string,replacingString:string):scriptVariables" export-name="scriptVariables"/>
+    </out-binding>
+    <position y="55.40909090909091" x="764.5"/>
+  </workflow-item >
+  <presentation>
+    <p-step>
+      <title><![CDATA[VM]]></title>
+      <p-group>
+        <title><![CDATA[VM]]></title>
+        <p-param name="vm">
+          <desc><![CDATA[VM]]></desc>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Credentials]]></title>
+        <desc><![CDATA[Windows credentials to add record to DNS server]]></desc>
+        <p-param name="vmUsername">
+          <desc><![CDATA[Username]]></desc>
+        </p-param>
+        <p-param name="vmPassword">
+          <desc><![CDATA[Password]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        </p-param>
+      </p-group>
+    </p-step>
+    <p-step>
+      <title><![CDATA[Scripts parameters]]></title>
+      <p-group>
+        <title><![CDATA[Delete record from Microsoft DNS server]]></title>
+        <p-param name="dnsServerFqdn">
+          <desc><![CDATA[DNS server FQDN (i.e ns.yourdomain.lab)]]></desc>
+        </p-param>
+        <p-param name="zoneNameFqdn">
+          <desc><![CDATA[Zone name (i.e yourdomain.lab)]]></desc>
+        </p-param>
+        <p-param name="recordName">
+          <desc><![CDATA[Record Name (i.e machine1)]]></desc>
+        </p-param>
+        <p-param name="recordType">
+          <desc><![CDATA[Record type (i.e A)]]></desc>
+        </p-param>
+        <p-param name="recordValue">
+          <desc><![CDATA[Record value (i.e 192.168.1.100)]]></desc>
+        </p-param>
+      </p-group>
+    </p-step>
+  </presentation>
+</workflow>

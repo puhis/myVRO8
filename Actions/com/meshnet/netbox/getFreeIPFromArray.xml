@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getFreeIPFromArray" result-type="string" api-version="6.0.0" id="ec1e980a-7b77-4c67-a1cd-6dbefe870517" version="0.0.0" category-name="com.meshnet.netbox">
+  <param n="netname" t="string"><![CDATA[]]></param>
+  <param n="count" t="string"><![CDATA[]]></param>
+  <param n="current" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (netname == null || netname == "") return "No Free IP 1";
+if (count == null || count == 0) return "No Free IP 2";
+if (current == null || current <= 0 || current > count) return "No Free IP 3";
+
+var ip_array = System.getModule("com.meshnet.netbox").getFreeIpInVlanCount(netname,count);
+
+return ip_array[current]]]></script>
+</dunes-script-module>

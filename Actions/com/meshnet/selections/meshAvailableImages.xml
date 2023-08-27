@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="meshAvailableImages" result-type="Array/string" api-version="6.0.0" id="efe565cd-cdf9-4307-9f92-c7e9aa9e1907" version="0.0.0" category-name="com.meshnet.selections">
+  <script encoded="false"><![CDATA[//var images = [];
+
+// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("Meshnet");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "i109 vra host") {
+        configElement = configuration;
+        break;
+    }
+}
+
+if (!configElement) throw "no ConfigElement found";
+var vraHost = configElement.getAttributeWithKey("vraDefault").value;
+if (vraHost == null) return [];
+
+//images = VraEntitiesFinder.getAllImageMapping(vraHost);
+//var objects = VraEntitiesFinder.getImageProfiles(vraHost);
+
+var objects = System.getModule("com.vmware.vra.extensibility.plugin.rest.iaas").getImageProfileMappingsCached(vraHost, 0);
+
+var imageMappingsProp = new Properties();
+for each(var object in objects) {
+    var cloudAccountType = System.getModule("com.vmware.vra.extensibility.plugin.rest.iaas").getCloudAccountTypeCached(vraHost, object.cloudAccountId, 24 * 3600);
+    //imageProp.put("cloudAccountType", cloudAccountType);
+    if (cloudAccountType == "vsphere") {
+        for (var mapping in object.imageMappings.mapping) {
+            imageMappingsProp.put(mapping);
+        }
+    }
+}
+return imageMappingsProp.keys.sort();
+]]></script>
+</dunes-script-module>

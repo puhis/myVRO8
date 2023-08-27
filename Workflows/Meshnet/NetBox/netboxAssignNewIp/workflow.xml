@@ -4,7 +4,7 @@
     <position y="50.0" x="80.0"/>
     <input>
         <param name="fqdn" type="string"/>
-        <param name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData"/>
+        <param name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData"/>
     </input>
     <output/>
     <attrib name="isPresent" type="boolean">
@@ -59,7 +59,7 @@ else {&#13;
             <bind name="netboxRestHost" type="string" export-name="netboxRestHost"/>
             <bind name="netboxToken" type="string" export-name="netboxToken"/>
             <bind name="netboxIpPath" type="string" export-name="netboxIpPath"/>
-            <bind name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData" export-name="ipAddrData"/>
+            <bind name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData" export-name="ipAddrData"/>
         </in-binding>
         <out-binding>
             <bind name="isPresent" type="boolean" export-name="isPresent"/>
@@ -104,12 +104,14 @@ else {&#13;
     // create ip record in netbox&#13;
     var ipa = ipAddrData.ip + "/" + ipAddrData.cdir;&#13;
     var vrfid = ipAddrData.vrfid;&#13;
+    var tenantid = ipAddrData.tenantid;&#13;
     var mutotext = {&#13;
         "address": ipa,&#13;
         "status": "active",&#13;
         "description": fqdn,&#13;
         "dns_name": fqdn,&#13;
-        "vrf": vrfid&#13;
+        "vrf": vrfid,&#13;
+        "tenant": tenantid&#13;
     };&#13;
     var content = JSON.stringify(mutotext);&#13;
     System.log("*** Create content: " + content);&#13;
@@ -135,7 +137,7 @@ else {&#13;
             <bind name="netboxIpPath" type="string" export-name="netboxIpPath"/>
             <bind name="fqdn" type="string" export-name="fqdn"/>
             <bind name="netboxIpId" type="string" export-name="netboxIpId"/>
-            <bind name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData" export-name="ipAddrData"/>
+            <bind name="ipAddrData" type="CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData" export-name="ipAddrData"/>
         </in-binding>
         <out-binding/>
         <description>Simple task with custom script capability.</description>

@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getAllImageNames" result-type="Array/string" api-version="6.0.0" id="49b27e8a-b529-4d1e-9b1b-9b30e9ae12ce" version="0.0.2" allowed-operations="vfe" category-name="com.vmware.vra.extensibility.plugin.rest.iaas">
+  <param n="vraHost" t="VRA:Host"><![CDATA[]]></param>
+  <param n="imageProfileName" t="string"><![CDATA[]]></param>
+  <param n="cacheTimeout" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (vraHost == null) return null;
+
+var objects = System.getModule("com.vmware.vra.extensibility.plugin.rest.iaas").getImageProfileMappingsCached(vraHost, cacheTimeout);
+
+var imagesProp = new Properties();
+for each (var object in objects) {
+    if (object.imageMappings.mapping[imageProfileName] != undefined) {
+        var imageName = object.imageMappings.mapping[imageProfileName].name;
+        if (imageName != "") {
+            imagesProp.put(imageName);
+            System.debug("Adding image : " + imageName);
+        }
+        else {
+            var imageId = object.imageMappings.mapping[imageProfileName].externalId;
+            imagesProp.put(imageId);
+            System.debug("Adding image id : " + imageId);
+        }
+
+    }
+}
+return imagesProp.keys.sort();]]></script>
+</dunes-script-module>

@@ -10,7 +10,7 @@
         <value encoded="n"></value>
     </attrib>
     <attrib name="vraHost" type="VRA:Host" conf-id="bc44d7ea-8d80-440c-a6b6-cfb1a4b9507a" conf-key="vraDefault"/>
-    <attrib name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData">
+    <attrib name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData">
         <value encoded="n">[]</value>
     </attrib>
     <workflow-item name="item0" type="end" end-mode="0" comparator="0">
@@ -33,8 +33,10 @@ if (deploymentId != null) {&#13;
         _element.ip = deploymentObject.inputs.ip_address1;&#13;
         _element.cdir = "";&#13;
         _element.vrfid = "";&#13;
+        _element.tenantid = "";&#13;
         _element.cdir = System.getModule("com.meshnet.netbox").getCidrByVlanID(ipm);&#13;
         _element.vrfid = System.getModule("com.meshnet.netbox").getVrfByVlanID(ipm);&#13;
+        _element.tenantid = System.getModule("com.meshnet.netbox").getTenantByVlanID(ipm);&#13;
         ipAddrData.push(_element);&#13;
         System.log("ip first : " + ipAddrData[0].ip + "/" + ipAddrData[0].cdir + " in VRF - " + ipAddrData[0].vrfid);&#13;
         if (deploymentObject.inputs.needNIC2) {&#13;
@@ -69,7 +71,7 @@ function getObjectFromUrl(url) {&#13;
             <bind name="vraHost" type="VRA:Host" export-name="vraHost"/>
         </in-binding>
         <out-binding>
-            <bind name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData" export-name="ipAddrData"/>
+            <bind name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData" export-name="ipAddrData"/>
             <bind name="fqdn" type="string" export-name="fqdn"/>
         </out-binding>
         <description>Simple task with custom script capability.</description>
@@ -79,7 +81,8 @@ function getObjectFromUrl(url) {&#13;
         <display-name>netboxAssignNewIp</display-name>
         <in-binding>
             <bind name="fqdn" type="string" export-name="fqdn"/>
-            <bind name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string):ipAddrData" export-name="*ipAddrData"/>
+            <bind name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData" export-name="*ipAddrData"/>
+            <bind name=""/>
         </in-binding>
         <out-binding/>
         <reference id="88033a23-c92f-4c98-b0e9-20d94837b8ed" type="Workflow"/>

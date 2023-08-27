@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item0" object-name="Workflow:name=generic" id="a93faf89-b5a1-4970-9760-21d82a48bfc0" editor-version="2.0" version="4.0.2" api-version="5.5.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Copy of Invoke a PowerShell script</display-name>
+    <description>Runs a custom script on a PowerShell host.</description>
+    <position y="20.0" x="380.0"/>
+    <input>
+        <param name="host" type="PowerShell:PowerShellHost">
+            <description>PowerShell host</description>
+        </param>
+        <param name="script" type="string">
+            <description>PowerShell script</description>
+        </param>
+    </input>
+    <output>
+        <param name="output" type="PowerShell:PowerShellRemotePSObject">
+            <description>Script execution result</description>
+        </param>
+    </output>
+    <attrib name="sessionId" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <workflow-item name="item5" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="210.0" x="380.0"/>
+    </workflow-item>
+    <workflow-item name="item0" out-name="item5" type="task" comparator="0">
+        <display-name>Invoke script</display-name>
+        <script encoded="false">var output;
+var session;
+try {
+	session = host.openSession();
+	output = System.getModule("com.vmware.library.powershell").invokeScript(host,"Get-DnsServerResourceRecord -RRType CNAME -ZoneName vm.as12773.net",session.getSessionId()) ;
+} finally {
+	if (session){
+		host.closeSession(session.getSessionId());
+	}
+}</script>
+        <in-binding>
+            <bind name="host" type="PowerShell:PowerShellHost" export-name="host"/>
+            <bind name="script" type="string" export-name="script"/>
+            <bind name="sessionId" type="string" export-name="sessionId"/>
+        </in-binding>
+        <out-binding>
+            <bind name="output" type="PowerShell:PowerShellRemotePSObject" export-name="output"/>
+        </out-binding>
+        <position y="120.0" x="340.0"/>
+    </workflow-item>
+    <workflow-note x="170.0" y="100.0" w="500.0" h="60.0" color="dfffbfff">
+        <description>Run script</description>
+    </workflow-note>
+</ns2:workflow>
