@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="2b82a1b6-eaca-43d0-9fa3-b2b50e26de26" version="0.0.0" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[abxDeleteDNSRecord]]></display-name>
+  <position y="50.0" x="80.0"/>
+  <input>
+    <param name="inputProperties" type="Properties"/>
+  </input>
+  <attrib name="fqdn" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vraHost" type="VRA:Host" read-only="false" conf-id="bc44d7ea-8d80-440c-a6b6-cfb1a4b9507a" conf-key="vraDefault"/>
+  <attrib name="domainName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="ipAddress" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="hostName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="create_ptr" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[false]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <in-binding/>
+    <position y="220.0" x="80.0"/>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task">
+    <display-name><![CDATA[Scriptable task]]></display-name>
+    <script encoded="false"><![CDATA[ipAddrData = [];
+var deploymentId = inputProperties.get("deploymentId");
+//var deploymentId = "f25cfbbe-1037-4cc3-94fc-8649fd741d2b";
+//var deploymentId = "5d417d10-2f16-42d9-ba6c-3c4bb40103d3";
+if (deploymentId != null) {
+    var deploymentObject = getObjectFromUrl("/deployment/api/deployments/" + deploymentId);
+    if (deploymentObject != null) {
+        fqdn = deploymentObject.inputs.hostname + "." + deploymentObject.inputs.domain;
+        domainName = deploymentObject.inputs.domain;
+        hostName = deploymentObject.inputs.hostname;
+        ipAddress = deploymentObject.inputs.ip_address1;
+        System.log(fqdn);
+        System.log(domainName);
+        System.log(hostName);
+        System.log(ipAddress);
+    }
+}
+
+function getObjectFromUrl(url) {
+    return System.getModule("com.vmware.vra.extensibility.plugin.rest").getObjectFromUrl(vraHost, url, null);
+}
+]]></script>
+    <in-binding>
+      <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+      <bind name="vraHost" type="VRA:Host" export-name="vraHost"/>
+    </in-binding>
+    <out-binding>
+      <bind name="fqdn" type="string" export-name="fqdn"/>
+      <bind name="domainName" type="string" export-name="domainName"/>
+      <bind name="hostName" type="string" export-name="hostName"/>
+      <bind name="ipAddress" type="string" export-name="ipAddress"/>
+    </out-binding>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="110.0" x="40.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" type="link" linked-workflow-id="3f9957f1-f803-4ae2-96cc-eb0f3aab5a8d">
+    <display-name><![CDATA[Delete DNS record]]></display-name>
+    <in-binding>
+      <bind name="hostName" type="string" export-name="hostName"/>
+      <bind name="domainName" type="string" export-name="domainName"/>
+      <bind name="create_ptr" type="boolean" export-name="create_ptr"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[ ]]></description>
+    <position y="170.0" x="40.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

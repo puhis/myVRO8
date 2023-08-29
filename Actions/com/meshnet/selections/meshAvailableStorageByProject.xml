@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<dunes-script-module name="meshAvailableStorageByProject" result-type="Array/string" api-version="6.0.0" id="a3c7d702-b6a2-4215-8be6-2f0f1d0f8de3" version="0.0.0" category-name="com.meshnet.selections">
+<dunes-script-module name="meshAvailableStorageByProject" result-type="Array/string" api-version="6.0.0" id="a3c7d702-b6a2-4215-8be6-2f0f1d0f8de3" version="0.0.0" allowed-operations="vfe" category-name="com.meshnet.selections">
   <param n="projectId" t="string"><![CDATA[]]></param>
   <param n="env" t="string"><![CDATA[]]></param>
   <script encoded="false"><![CDATA[var storages = [];
@@ -31,18 +31,9 @@ for (var stor in tmpstorages) {
     System.log(tmpstorages[stor]);
     System.log(stor);
     System.log(tmpstorages[stor].indexOf("nfs"));
-    if (env == 'env:meshnet-intel') storages.push(tmpstorages[stor]);
-    if ( ((env == 'env:meshnet-hp') || (env == 'env:meshnet-backup')) ) storages.push(tmpstorages[stor]);
+    storages.push(tmpstorages[stor]);
+
 }
-/*
-storage:intel_800gb-ssd
-storage:intel_450gb-ssd
-storage:intel_5tb-ssd
-storage:meshnet_nas201-nfs
-storage:meshnet_nas203-nfs
-*/
-
-
 
 return storages;
 ]]></script>

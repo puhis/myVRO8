@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getVsphereFolder" result-type="string" api-version="6.0.0" id="0e8e3539-cace-458c-ab99-4cc953d369d6" version="0.0.0" allowed-operations="vfe" category-name="com.meshnet.ossautomation">
+  <param n="inputS" t="string"><![CDATA[]]></param>
+  <param n="inputP" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (inputS == '' || inputS == null) {
+    inputS = "project";
+};
+
+return System.getModule("com.meshnet.ossautomation").getProjectName(inputP) + "_" + inputS;
+]]></script>
+</dunes-script-module>

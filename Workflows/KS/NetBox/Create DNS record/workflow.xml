@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item0" object-name="Workflow:name=generic" id="d909ba42-35a0-4761-baf8-613bee12d593" version="4.0.2" api-version="6.0.0" allowed-operations="vfe" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Create DNS record]]></display-name>
+  <description><![CDATA[Runs a custom script on a PowerShell host.]]></description>
+  <position y="50.0" x="100.0"/>
+  <input>
+    <param name="hostName" type="string"/>
+    <param name="domainName" type="string"/>
+    <param name="create_ptr" type="boolean"/>
+    <param name="ipAddress" type="string"/>
+  </input>
+  <attrib name="sessionId" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="host" type="PowerShell:PowerShellHost" read-only="false" conf-id="bc44d7ea-8d80-440c-a6b6-cfb1a4b9507a" conf-key="dns1">
+    <description><![CDATA[PowerShell host]]></description>
+  </attrib>
+  <attrib name="output" type="PowerShell:PowerShellRemotePSObject" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+    <description><![CDATA[Script execution result]]></description>
+  </attrib>
+  <workflow-item name="item5" type="end" end-mode="0">
+    <in-binding/>
+    <position y="190.0" x="100.0"/>
+  </workflow-item>
+  <workflow-item name="item0" out-name="item5" type="task">
+    <display-name><![CDATA[Invoke script]]></display-name>
+    <script encoded="false"><![CDATA[var output;
+var session;
+
+try {
+    session = host.openSession();
+    if (create_ptr) {
+        output = System.getModule("com.vmware.library.powershell").invokeScript(host, "Add-DnsServerResourceRecordA -ZoneName " + domainName + " -Name " + hostName + " -IPv4Address " + ipAddress + " -CreatePtr", session.getSessionId());
+    } else {
+        output = System.getModule("com.vmware.library.powershell").invokeScript(host, "Add-DnsServerResourceRecordA -ZoneName " + domainName + " -Name " + hostName + " -IPv4Address " + ipAddress, session.getSessionId());
+    }
+} finally {
+    if (session) {
+        host.closeSession(session.getSessionId());
+    }
+}
+
+//Add-DnsServerResourceRecordA -ZoneName cloudup.kyivstar.ua -Name "+hostname+" -IPv4Address "+ipaddress"]]></script>
+    <in-binding>
+      <bind name="host" type="PowerShell:PowerShellHost" export-name="host"/>
+      <bind name="create_ptr" type="boolean" export-name="create_ptr"/>
+      <bind name="domainName" type="string" export-name="domainName"/>
+      <bind name="hostName" type="string" export-name="hostName"/>
+      <bind name="ipAddress" type="string" export-name="ipAddress"/>
+    </in-binding>
+    <out-binding>
+      <bind name="output" type="PowerShell:PowerShellRemotePSObject" export-name="output"/>
+    </out-binding>
+    <position y="101.0" x="60.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>

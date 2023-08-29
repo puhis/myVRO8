@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dunes-script-module name="getTenantByVlanID" result-type="string" api-version="6.0.0" id="8e79596f-49f8-4949-9bca-b135cb7851c9" version="0.0.0" category-name="com.meshnet.netbox">
   <param n="netname" t="string"><![CDATA[]]></param>
-  <script encoded="false"><![CDATA[if (netname == null || netname == "") return [];
+  <script encoded="false"><![CDATA[if (netname == null || netname == "") return "";
 
 // Get Configuration Element Values
 var category = Server.getConfigurationElementCategoryWithPath("NetBox");
@@ -39,9 +39,9 @@ else {
     vlandetails = request.execute();
     System.log(vlandetails.contentAsString);
     vlandetailsJSON = JSON.parse(vlandetails.contentAsString)
-    if (vlandetailsJSON.results[0].tenant) { var vrf_id = vlandetailsJSON.results[0].tenant.id; }
-    else { var vrf_id = null }
+    if (vlandetailsJSON.results[0].tenant) { var tenant_id = vlandetailsJSON.results[0].tenant.id; }
+    else { var tenant_id = null }
 }
-return vrf_id;
+return tenant_id;
 ]]></script>
 </dunes-script-module>

@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="createHostname" result-type="string" api-version="6.0.0" id="759a68b7-1870-48cc-b26e-69474bf937bb" version="0.0.0" category-name="com.meshnet.ossautomation">
+  <param n="inputP" t="string"><![CDATA[]]></param>
+  <param n="delimiter" t="string"><![CDATA[]]></param>
+  <param n="a" t="string"><![CDATA[]]></param>
+  <param n="b" t="string"><![CDATA[]]></param>
+  <param n="c" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[var hostnamenew = '';
+
+var prj = System.getModule("com.meshnet.ossautomation").getProjectName(inputP);
+const search = ' ';
+const replaceWith = '-';
+
+hostnamenew = prj.split(search).join(replaceWith);
+//hostnamenew = prj;
+
+if ((a != "") || (a != null)) hostnamenew = hostnamenew + delimiter + a;
+if ((b != "") || (b != null)) hostnamenew = hostnamenew + delimiter + b;
+if ((c != "") || (c != null)) hostnamenew = hostnamenew + delimiter + c;
+
+return hostnamenew
+]]></script>
+</dunes-script-module>

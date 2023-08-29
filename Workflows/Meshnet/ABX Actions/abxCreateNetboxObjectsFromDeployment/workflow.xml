@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item1" object-name="workflow:name=generic" id="c2749e22-efce-44d5-a56f-0e9027e8e8ea" editor-version="2.0" version="0.0.0" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+    <display-name>abxCreateNetboxObjectsFromDeployment</display-name>
+    <position y="50.0" x="80.0"/>
+    <input>
+        <param name="inputProperties" type="Properties"/>
+    </input>
+    <output/>
+    <attrib name="fqdn" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="vraHost" type="VRA:Host" conf-id="bc44d7ea-8d80-440c-a6b6-cfb1a4b9507a" conf-key="vraDefault"/>
+    <attrib name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData">
+        <value encoded="n">[]</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="220.0" x="80.0"/>
+    </workflow-item>
+    <workflow-item name="item1" out-name="item2" type="task" comparator="0">
+        <display-name>Scriptable task</display-name>
+        <script encoded="false">ipAddrData = [];&#13;
+var deploymentId = inputProperties.get("deploymentId");&#13;
+//var deploymentId = "07aaea5c-1dcb-4d40-bc96-96e676e523eb";&#13;
+if (deploymentId != null) {&#13;
+    var deploymentObject = getObjectFromUrl("/deployment/api/deployments/" + deploymentId);&#13;
+    if (deploymentObject != null) {&#13;
+        fqdn = deploymentObject.inputs.hostname + "." + deploymentObject.inputs.domain;&#13;
+        var ipm = deploymentObject.inputs.select_network1;&#13;
+        System.log(ipm);&#13;
+        var _element = new Object();&#13;
+        _element.ip = deploymentObject.inputs.ip_address1;&#13;
+        _element.cdir = "";&#13;
+        _element.vrfid = "";&#13;
+        _element.tenantid = "";&#13;
+        _element.cdir = System.getModule("com.meshnet.netbox").getCidrByVlanID(ipm);&#13;
+        _element.vrfid = System.getModule("com.meshnet.netbox").getVrfByVlanID(ipm);&#13;
+        _element.tenantid = System.getModule("com.meshnet.netbox").getTenantByVlanID(ipm);&#13;
+        ipAddrData.push(_element);&#13;
+        System.log("ip first : " + ipAddrData[0].ip + "/" + ipAddrData[0].cdir + " in VRF - " + ipAddrData[0].vrfid);&#13;
+        if (deploymentObject.inputs.needNIC2) {&#13;
+            var ipm = deploymentObject.inputs.select_network2;&#13;
+            var _element = new Object();&#13;
+            _element.ip = deploymentObject.inputs.ip_address2;&#13;
+            _element.cdir = "";&#13;
+            _element.vrfid = "";&#13;
+            _element.cdir = System.getModule("com.meshnet.netbox").getCidrByVlanID(ipm);&#13;
+            _element.vrfid = System.getModule("com.meshnet.netbox").getVrfByVlanID(ipm);&#13;
+            _element.tenantid = System.getModule("com.meshnet.netbox").getTenantByVlanID(ipm);&#13;
+            ipAddrData.push(_element);&#13;
+            System.log("ip second : " + ipAddrData[1].ip + "/" + ipAddrData[1].cdir + " in VRF - " + ipAddrData[1].vrfid);&#13;
+        }&#13;
+        if (deploymentObject.inputs.needNIC3) {&#13;
+            var ipm = deploymentObject.inputs.select_network3;&#13;
+            var _element = new Object();&#13;
+            _element.ip = deploymentObject.inputs.ip_address3;&#13;
+            _element.cdir = "";&#13;
+            _element.vrfid = "";&#13;
+            _element.cdir = System.getModule("com.meshnet.netbox").getCidrByVlanID(ipm);&#13;
+            _element.vrfid = System.getModule("com.meshnet.netbox").getVrfByVlanID(ipm);&#13;
+            _element.tenantid = System.getModule("com.meshnet.netbox").getTenantByVlanID(ipm);&#13;
+            ipAddrData.push(_element);&#13;
+            System.log("ip third : " + ipAddrData[2].ip + "/" + ipAddrData[2].cdir + " in VRF - " + ipAddrData[2].vrfid);&#13;
+        }&#13;
+    }&#13;
+}&#13;
+&#13;
+function getObjectFromUrl(url) {&#13;
+    return System.getModule("com.vmware.vra.extensibility.plugin.rest").getObjectFromUrl(vraHost, url, null);&#13;
+}&#13;
+</script>
+        <in-binding>
+            <bind name="inputProperties" type="Properties" export-name="inputProperties"/>
+            <bind name="vraHost" type="VRA:Host" export-name="vraHost"/>
+        </in-binding>
+        <out-binding>
+            <bind name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData" export-name="ipAddrData"/>
+            <bind name="fqdn" type="string" export-name="fqdn"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="110.0" x="40.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="foreach" comparator="0">
+        <display-name>netboxAssignNewIp</display-name>
+        <in-binding>
+            <bind name="fqdn" type="string" export-name="fqdn"/>
+            <bind name="ipAddrData" type="Array/CompositeType(ip:string,cdir:string,vrfid:string,tenantid:string):ipAddrData" export-name="*ipAddrData"/>
+            <bind name=""/>
+        </in-binding>
+        <out-binding/>
+        <reference id="88033a23-c92f-4c98-b0e9-20d94837b8ed" type="Workflow"/>
+        <position y="170.0" x="40.0"/>
+    </workflow-item>
+</ns2:workflow>

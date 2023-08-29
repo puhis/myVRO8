@@ -1,34 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<dunes-script-module name="dnsCheckRecord" result-type="string" api-version="6.0.0" id="a8ddf303-d890-4933-b478-bd8686baabb0" version="0.0.0" category-name="com.meshnet.ossautomation">
+<dunes-script-module name="dnsCheckRecord" result-type="string" api-version="6.0.0" id="a8ddf303-d890-4933-b478-bd8686baabb0" version="0.0.0" allowed-operations="vfe" category-name="com.meshnet.ossautomation">
   <param n="domain_name" t="string"><![CDATA[]]></param>
   <param n="host_name" t="string"><![CDATA[]]></param>
+  <param n="dns_need" t="boolean"><![CDATA[]]></param>
   <script encoded="false"><![CDATA[var output;
 var session;
 var script = "Get-DnsServerResourceRecord -RRType A -ZoneName " + domain_name + " | where {$_.hostname -eq '" + host_name + "'}";
-System.log(script);
-
-// Get Configuration Element Values
-var category = Server.getConfigurationElementCategoryWithPath("Meshnet");
-var configElement = null;
-for each(var configuration in category.configurationElements) {
-	if (configuration.name == "i109 vra host") {
-		configElement = configuration;
-		break;
+if (dns_need) {
+	// Get Configuration Element Values
+	var category = Server.getConfigurationElementCategoryWithPath("Meshnet");
+	var configElement = null;
+	for each(var configuration in category.configurationElements) {
+		if (configuration.name == "i109 vra host") {
+			configElement = configuration;
+			break;
+		}
 	}
-}
-if (!configElement) throw "no ConfigElement found";
-var psHost = configElement.getAttributeWithKey("dns1").value;
-if (psHost == null) { psHost = configElement.getAttributeWithKey("dns2").value; }
-if (psHost == null) { return "true" }
+	if (!configElement) throw "no ConfigElement found";
+	var psHost = configElement.getAttributeWithKey("dns1").value;
+	if (psHost == null) { psHost = configElement.getAttributeWithKey("dns2").value; }
+	if (psHost == null) { return "true" }
 
-try {
-	session = psHost.openSession();
-	output = System.getModule("com.vmware.library.powershell").invokeScript(psHost, script, session.getSessionId());
-} finally {
-	if (session) {
-		psHost.closeSession(session.getSessionId());
+	try {
+		session = psHost.openSession();
+		output = System.getModule("com.vmware.library.powershell").invokeScript(psHost, script, session.getSessionId());
+	} finally {
+		if (session) {
+			psHost.closeSession(session.getSessionId());
+		}
 	}
+	if (output) { return "Hostname already exist" }
+	else { return "" }
 }
-if (output) { return "Hostname already exist" }
 else { return "" }]]></script>
 </dunes-script-module>

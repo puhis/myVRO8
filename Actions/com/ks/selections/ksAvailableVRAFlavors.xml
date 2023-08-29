@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="ksAvailableVRAFlavors" result-type="Array/string" api-version="6.0.0" id="889db668-1fd0-4001-9538-6683296daecd" version="0.0.0" allowed-operations="vfe" category-name="com.ks.selections">
+  <script encoded="false"><![CDATA[// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("NetworkSelection");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "ConfigNetworkSelection") {
+        configElement = configuration;
+        break;
+    }
+}
+if (!configElement) throw "no ConfigElement found";
+var vraHost = configElement.getAttributeWithKey("vraDefault").value;
+if (vraHost == null) return [];
+
+var flavors = VraEntitiesFinder.getAllFlavorMapping(vraHost)
+
+return flavors;
+]]></script>
+</dunes-script-module>

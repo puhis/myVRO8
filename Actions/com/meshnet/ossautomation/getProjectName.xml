@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="getProjectName" result-type="string" api-version="6.0.0" id="4cd5ac77-2026-48d3-8c35-85c48f1c66c7" version="0.0.0" allowed-operations="vfe" category-name="com.meshnet.ossautomation">
+  <param n="projectId" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (projectId == null || projectId == "") return "";
+
+// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("Meshnet");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "i109 vra host") {
+        configElement = configuration;
+        break;
+    }
+}
+if (!configElement) throw "no ConfigElement found";
+var vraHost = configElement.getAttributeWithKey("vraDefault").value;
+if (vraHost == null) return "";
+//var project = System.getModule("com.vmware.vra.extensibility.plugin.rest.project").getProject(vraHost, projectId);
+
+//Return the Project Name
+return VraEntitiesFinder.getProject(vraHost, projectId).name;]]></script>
+</dunes-script-module>

@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="ksAvailableVRAImages" result-type="Array/string" api-version="6.0.0" id="94203ba6-8e1d-4ff8-b33d-cd632210d9bd" version="0.0.0" allowed-operations="vfe" category-name="com.ks.selections">
+  <script encoded="false"><![CDATA[// Get Configuration Element Values
+var category = Server.getConfigurationElementCategoryWithPath("NetworkSelection");
+var configElement = null;
+for each(var configuration in category.configurationElements) {
+    if (configuration.name == "ConfigNetworkSelection") {
+        configElement = configuration;
+        break;
+    }
+}
+if (!configElement) throw "no ConfigElement found";
+var vraHost = configElement.getAttributeWithKey("vraDefault").value;
+if (vraHost == null) return [];
+
+var flavors = VraEntitiesFinder.getAllImageMapping(vraHost)
+
+return flavors;
+]]></script>
+</dunes-script-module>
