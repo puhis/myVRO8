@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:workflow xmlns:ns2="http://vmware.com/vco/workflow" root-name="item3" object-name="workflow:name=generic" id="1ba5230a-1653-42bd-9d31-cd2013e6fa4e" editor-version="2.0" version="0.0.1" api-version="6.0.0" allowed-operations="vfe" restartMode="1" resumeFromFailedMode="0">
+    <display-name>Create sample _Event Broker Template_ subscriptions</display-name>
+    <description>Extensibility sample</description>
+    <position y="50.0" x="100.0"/>
+    <input>
+        <param name="topicIds" type="Array/string"/>
+        <param name="disabled" type="boolean"/>
+        <param name="vraHost" type="VRA:Host"/>
+    </input>
+    <output/>
+    <attrib name="description" type="string">
+        <value encoded="n">Created by VMware Extensibility samples</value>
+    </attrib>
+    <attrib name="blocking" type="boolean">
+        <value encoded="n">true</value>
+    </attrib>
+    <attrib name="runnableType" type="string">
+        <value encoded="n">extensibility.vro</value>
+    </attrib>
+    <attrib name="runnableId" type="string">
+        <value encoded="n"></value>
+    </attrib>
+    <attrib name="timeout" type="string">
+        <value encoded="n">10</value>
+    </attrib>
+    <attrib name="priority" type="string">
+        <value encoded="n">0</value>
+    </attrib>
+    <attrib name="runnableWorkflow" type="Workflow">
+        <value encoded="n">dunes://service.dunes.ch/Workflow?id='9239fa70-1430-4781-a29c-205156a49a6a'&amp;dunesName='Workflow'</value>
+    </attrib>
+    <workflow-item name="item0" type="end" end-mode="0" comparator="0">
+        <in-binding/>
+        <out-binding/>
+        <position y="50.0" x="681.0"/>
+    </workflow-item>
+    <workflow-item name="item2" out-name="item0" type="foreach" comparator="0">
+        <display-name>Create an Event Broker subscription</display-name>
+        <in-binding>
+            <bind name="name" type="Array/string" export-name="*topicIds"/>
+            <bind name="description" type="string" export-name="description"/>
+            <bind name="disabled" type="boolean" export-name="disabled"/>
+            <bind name="eventTopicId" type="Array/string" export-name="*topicIds"/>
+            <bind name="blocking" type="boolean" export-name="blocking"/>
+            <bind name="runnableType" type="string" export-name="runnableType"/>
+            <bind name="runnableId" type="string" export-name="runnableId"/>
+            <bind name="timeout" type="string" export-name="timeout"/>
+            <bind name="priority" type="string" export-name="priority"/>
+            <bind name="vraHost" type="VRA:Host" export-name="vraHost"/>
+        </in-binding>
+        <out-binding/>
+        <reference id="556cca14-1eca-4896-8621-e0789e2d849d" type="Workflow"/>
+        <iteration-catch-block>
+            <script encoded="false">System.warn("Could not create subscription");</script>
+        </iteration-catch-block>
+        <position y="60.0" x="360.0"/>
+    </workflow-item>
+    <workflow-item name="item3" out-name="item2" type="task" comparator="0">
+        <display-name>Set runnable ID</display-name>
+        <script encoded="false">runnableId = runnableWorkflow.id;</script>
+        <in-binding>
+            <bind name="runnableWorkflow" type="Workflow" export-name="runnableWorkflow"/>
+        </in-binding>
+        <out-binding>
+            <bind name="runnableId" type="string" export-name="runnableId"/>
+        </out-binding>
+        <description>Simple task with custom script capability.</description>
+        <position y="60.0" x="200.0"/>
+    </workflow-item>
+</ns2:workflow>
